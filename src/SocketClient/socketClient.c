@@ -47,7 +47,7 @@ int socketClient_Init(SOCKETCLIENT* sock)
 	hints.ai_family = AF_INET;			/* IPv4 connection */
 	hints.ai_socktype = SOCK_STREAM;	/* TCP, streaming */
 	fprintf(stdout, "\e[38;2;0;0;255mSet all parameters\n\e[0m");
-    char strPort[10] = NULL;
+    char strPort[10] = "";
     sprintf(strPort, "%d", sock->port);
 	ret = getaddrinfo(sock->ip_address, strPort, &hints, &host);
 	fprintf(stdout, "\e[38;2;0;0;255mGetaddrinfo result: %d\n\e[0m", ret);
@@ -68,7 +68,7 @@ int socketClient_Init(SOCKETCLIENT* sock)
 	}
 
 	/* connect and get the info */
-	ret = connect(sock->ConnectSocket, host->ai_addr, sock->ConnectSocket->ai_addrlen);
+	ret = connect(sock->ConnectSocket, host->ai_addr, host->ai_addrlen);
 	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
 	if(ret == -1)
 	{
@@ -186,6 +186,26 @@ int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, i
     }
 
 #elif __linux__
+    ret = send(sock->ConnectSocket, message, strlen(message), 0);
+	if(ret == -1)
+	{
+		perror("Send failed");
+        close(sock->ConnectSocket);
+		return ret;
+	}    
+
+    ret = recv(sock->ConnectSocket, buffer, bufferSize, 0);
+    if(ret > 0)
+    {
+        buffer[ret] = '\0';
+	    printf("%s\n",buffer);
+    }
+	else
+    {
+        perror("Recv failed");
+        close(sock->ConnectSocket);
+		return ret;
+    }
 
 
 #endif
@@ -211,8 +231,8 @@ int socketClient_Deinit(SOCKETCLIENT* sock)
 }
 
 #ifdef RUNABLE
-//  Windows: gcc -Wall -D RUNABLE SocketClient.c -o .\Builds\SocketClient -lWs2_32
-//  Linux:
+//  Windows:    gcc -Wall -D RUNABLE socketClient.c -o .\bin\SocketClient -lWs2_32
+//  Linux:      gcc -Wall -D RUNABLE socketClient.c -o ./bin/SocketClient
 int main(int argc, char* argv[])
 {
     int run = 1;
@@ -229,13 +249,13 @@ int main(int argc, char* argv[])
 
     if(argc < 2)
     {
-        puts(SOCKETCLIENT_ERROR"Too many arguments were added!\n"SOCKETCLIENT_RESET);
+        puts(SOCKETCLIENT_ERROR "No any arguments added\n" SOCKETCLIENT_RESET);
         return -1;
     }
 
     do
     {
-        if(index >= argc) return 0;    
+        if(index >= argc) return 0;
         
         if(counter < strlen(argv[index]))
         {
