@@ -12,10 +12,11 @@
 #define SERIALTIMEOUT   COMMTIMEOUTS
 
 #elif __linux__
-
+#include <netdb.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
+#include <sys/socket.h>
 #define SERIALPORT      int
 #define SERIALPARAMS    struct termios
 #define SERIALTIMEOUT   int
