@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "stringUtils.h"
 //#include <glib.h>
 
 

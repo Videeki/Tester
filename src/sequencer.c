@@ -1,38 +1,6 @@
 #include "sequencer.h"
 
 
-int string_trim_before(const char* str, int offset)
-{
-    int i = 0;
-    for(i += offset; str[i] != '\0'; i++)
-        if(str[i] > 32) break;
-    
-    return i;
-}
-
-
-int string_trim_after(const char* str, int offset)
-{
-    int i = 0;
-    for(i = strlen(str) - offset; i != 0; i--)
-    {
-        if(str[i] > 32) break;
-    }
-    
-    return i;
-}
-
-
-int index_char(char* str, char chr)
-{
-    for(int i = 0; str[i] != '\0'; i++)
-        if(str[i] == chr)
-            return i;
-
-    return -1;
-}
-
-
 Sequences* sequence_append(Sequences* list, const char* sequence, uint8_t copy)
 {
     Sequences* new;
@@ -271,7 +239,7 @@ int main(int argc, char* argv[])
 {
     if(argc < 3)
     {
-        printf("\e[38;2;255;0;0mToo many arguments added\n\e[0m");
+        printf("\e[38;2;255;0;0mFew parameters have been specified\n\e[0m");
         return -1;
     }
 
