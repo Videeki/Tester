@@ -1,52 +1,15 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef SEQUENCER_H
+#define SEQUENCER_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "parser.h"
 #include "stringUtils.h"
-//#include <glib.h>
 
-
-typedef struct sequences Sequences;
-typedef struct keys Keys;
-typedef struct params Parameters;
-
-struct sequences
-{
-    char* sequence;
-    uint8_t copy;
-    Sequences* next;
-};
-
-struct keys
-{
-    char* sequence;
-    char* key;
-    uint8_t copy;
-    Keys* next;
-};
-
-struct params
-{
-    char* name;
-    char* value;
-    Parameters* next;
-};
-
-Sequences* sequence_append(Sequences* list, const char* sequence, uint8_t copy);
-int sequence_index(Sequences* list, const char* sequence);
-void sequence_free(Sequences* list);
-
-Keys* keys_append(Keys* list, char* sequence, const char* key, uint8_t copy);
-void keys_free(Keys* list);
-
-Parameters* param_append(Parameters* list, const char* param);
-char* get_parameter(Parameters* list, const char* parameter);
-void param_free(Parameters* list);
 
 int CMDProc(Parameters* list, char* cmd);
 void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq);
 
-#endif  /* PARSER_H */
+#endif  /* SEQUENCER_H */
