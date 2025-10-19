@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "stringUtils.h"
+
 typedef struct sequences Sequences;
 typedef struct keys Keys;
 typedef struct params Parameters;
@@ -32,7 +34,7 @@ struct params
     Parameters* next;
 };
 
-void parser(Sequences* seqs, Keys* keys, Parameters* params, const char* path);
+int parser(Sequences* seqs, Keys* keys, Parameters* params, const char* path);
 
 Sequences* sequence_append(Sequences* list, const char* sequence, uint8_t copy);
 int sequence_index(Sequences* list, const char* sequence);

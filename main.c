@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parser.h"
-#include "sequencer.h"
+#include "includes/parser.h"
+#include "includes/sequencer.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -17,7 +18,23 @@ int main(int argc, char* argv[])
     Keys* keys = NULL;
     Parameters* params = NULL;
 
-    parser(seqs, keys, params, argv[1]);
+    int ret = 0;
+    ret = parser(seqs, keys, params, argv[1]);
+    
+    if(ret)
+    {
+        perror("Unsuccessfull parsing");
+        return EXIT_FAILURE;
+    }
+
+    if(seqs == NULL)
+        perror("There is no any sequence\n");
+
+    if(keys == NULL)
+        perror("There is no any key\n");
+
+    if(params == NULL)
+        perror("There is no any parameter\n");
 
     sequencer(seqs, keys, params, argv[2]);
 
