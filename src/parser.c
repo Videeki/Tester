@@ -1,7 +1,7 @@
 #include "parser.h"
 
 
-int parser(Sequences* seqs, Keys* keys, Parameters* params, const char* path)
+int parser(PARSED* parsed, const char* path)
 {
     FILE* fp = fopen(path, "r");
 
@@ -31,19 +31,19 @@ int parser(Sequences* seqs, Keys* keys, Parameters* params, const char* path)
         if(fileContent[0] == '#' || fileContent[0] == '\n' || fileContent[0] == '\r') continue;
         else if(fileContent[0] == '[')
         {
-            seqs = sequence_append(seqs, fileContent, 1);
+            parsed->seqs = sequence_append(parsed->seqs, fileContent, 1);
         }
         else if(index_char(fileContent, '=') >= 0)
         {
-            params = param_append(params, fileContent);
+            parsed->params = param_append(parsed->params, fileContent);
         }
         else
         {
-            Sequences* iter = seqs;
+            Sequences* iter = parsed->seqs;
             while(iter->next != NULL)
                 iter = iter->next;
 
-            keys = keys_append(keys, iter->sequence, fileContent, 1);
+            parsed->keys = keys_append(parsed->keys, iter->sequence, fileContent, 1);
         }
     }
 
@@ -108,6 +108,8 @@ int sequence_index(Sequences* list, const char* sequence)
 
 void sequence_free(Sequences* list)
 {
+    if(list == NULL) return;
+
     Sequences* iter = list;
     while(iter != NULL)
     {
@@ -154,6 +156,8 @@ Keys* keys_append(Keys* list, char* sequence, const char* key, uint8_t copy)
 
 void keys_free(Keys* list)
 {
+    if(list == NULL) return;
+
     Keys* iter = list;
     while(iter != NULL)
     {
@@ -237,6 +241,8 @@ char* get_parameter(Parameters* params, const char* parameter)
 
 void param_free(Parameters* list)
 {
+    if(list == NULL) return;
+
     Parameters* iter = list;
     while(iter != NULL)
     {

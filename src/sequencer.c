@@ -17,6 +17,7 @@ int CMDProc(Parameters* list, char* cmd)
 void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq)
 {
     if(keys == NULL) return;
+    
     if(sequence_index(seqs, actSeq) >= 0)
     {
         Keys* keyiter = keys;

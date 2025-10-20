@@ -14,12 +14,15 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    Sequences* seqs = NULL;
-    Keys* keys = NULL;
-    Parameters* params = NULL;
+    PARSED testDescFile;
+
+
+    testDescFile.seqs = NULL;
+    testDescFile.keys = NULL;
+    testDescFile.params = NULL;
 
     int ret = 0;
-    ret = parser(seqs, keys, params, argv[1]);
+    ret = parser(&testDescFile, argv[1]);
     
     if(ret)
     {
@@ -27,20 +30,26 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    if(seqs == NULL)
+    if(testDescFile.seqs == NULL)
         perror("There is no any sequence\n");
 
-    if(keys == NULL)
+    if(testDescFile.keys == NULL)
         perror("There is no any key\n");
 
-    if(params == NULL)
+    if(testDescFile.params == NULL)
         perror("There is no any parameter\n");
 
-    sequencer(seqs, keys, params, argv[2]);
+    char startSequence[255] = {0};
+    if(argc > 2)
+        strncpy(startSequence, argv[2], strlen(argv[2]));
+    else
+        strncpy(startSequence, testDescFile.seqs->sequence, strlen(testDescFile.seqs->sequence));
 
-    keys_free(keys);
-    param_free(params);
-    sequence_free(seqs);
+    sequencer(testDescFile.seqs, testDescFile.keys, testDescFile.params, startSequence);
+
+    keys_free(testDescFile.keys);
+    param_free(testDescFile.params);
+    sequence_free(testDescFile.seqs);
 
     return 0;
 }

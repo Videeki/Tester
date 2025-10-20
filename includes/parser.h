@@ -34,7 +34,15 @@ struct params
     Parameters* next;
 };
 
-int parser(Sequences* seqs, Keys* keys, Parameters* params, const char* path);
+typedef struct parsed
+{
+    Sequences* seqs;
+    Keys* keys;
+    Parameters* params;
+}PARSED;
+
+
+int parser(PARSED* parsed, const char* path);
 
 Sequences* sequence_append(Sequences* list, const char* sequence, uint8_t copy);
 int sequence_index(Sequences* list, const char* sequence);
