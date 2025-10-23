@@ -7,6 +7,8 @@
 #include <string.h>
 #include "parser.h"
 #include "stringUtils.h"
+#include "socketClient.h"
+#include "serialClient.h"
 
 
 int CMDProc(Parameters* list, char* cmd);

@@ -55,5 +55,6 @@ int socketClient_Send(SOCKETCLIENT* sock, char* message);
 int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize);
 int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize);
 int socketClient_Deinit(SOCKETCLIENT* sock);
+int socketClient_Compact(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize);
 
 #endif  /* SOCKETCLIENT_H */
