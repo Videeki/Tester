@@ -5,20 +5,31 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+enum stopBits {ONE, ONE_AND_HALF, TWO};
+enum parity {NONE, ODD, EVEN, MARK, SPACE};
+
+typedef struct serialparams
+{
+    int BaudRate;           // Setting BaudRate
+    int ByteSize;           // Setting ByteSize
+    enum stopBits StopBits; // Setting StopBits
+    enum parity Parity;     // Setting Parity
+}SerialParams;
+
+#define SERIALPARAMS    SerialParams
+
 #ifdef _WIN32
 #include <Windows.h>
 #define SERIALPORT      HANDLE
-#define SERIALPARAMS    DCB
 #define SERIALTIMEOUT   COMMTIMEOUTS
 
 #elif __linux__
-#include <netdb.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <termios.h>
-#include <sys/socket.h>
+#include <fcntl.h>      // Contains file controls like O_RDWR
+#include <errno.h>      // Error integer and strerror() function
+#include <termios.h>    // Contains POSIX terminal control definitions
+#include <unistd.h>     // write(), read(), close()
 #define SERIALPORT      int
-#define SERIALPARAMS    struct termios
 #define SERIALTIMEOUT   int
 
 #endif

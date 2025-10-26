@@ -6,9 +6,15 @@
 #include <stdint.h>
 #include <string.h>
 #include "parser.h"
+#include "hashCalc.h"
 #include "stringUtils.h"
 #include "socketClient.h"
 #include "serialClient.h"
+
+
+#define InitTPS     792116435
+#define InitGateway 993770905
+
 
 
 int CMDProc(Parameters* list, char* cmd);

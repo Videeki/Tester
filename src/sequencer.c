@@ -4,13 +4,22 @@
 int CMDProc(Parameters* list, char* cmd)
 {
     printf("CMDPRoc -> ");
-    if(!strcmp(cmd, "InitPS"))
+    switch(fastHash(cmd, strlen(cmd)))
+    {
+    case InitTPS:
         printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "PSIP"), get_parameter(list, "PSHost"));
-    else if(!strcmp(cmd, "InitGateway"))
-        printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "GatewayIP"), get_parameter(list, "GatewayHost"));
-    else
+        break;
+    
+    case InitGateway:
+        printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "GatewayIP"), get_parameter(list, "GatewayHost")); 
+        break;
+
+    default:
         printf("%s\n", cmd);
-    return 0;
+        break;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 
