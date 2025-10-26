@@ -12,7 +12,7 @@
 #include "serialClient.h"
 
 
-#define InitTPS     792116435
+#define InitPS      792116435
 #define InitGateway 993770905
 
 

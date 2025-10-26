@@ -6,7 +6,7 @@ int CMDProc(Parameters* list, char* cmd)
     printf("CMDPRoc -> ");
     switch(fastHash(cmd, strlen(cmd)))
     {
-    case InitTPS:
+    case InitPS:
         printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "PSIP"), get_parameter(list, "PSHost"));
         break;
     
