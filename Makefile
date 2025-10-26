@@ -19,3 +19,11 @@ stringUtilsTest:
 	($(PWD)/bin/stringUtilsTest "    alma" 1 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
 	($(PWD)/bin/stringUtilsTest "    alma" 4 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
 	($(PWD)/bin/stringUtilsTest "    alma" 5 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
+
+hashCalcTest:
+	gcc -Wall $(PWD)/test/hashCalcTest.c -o $(PWD)/bin/hashCalcTest $(PWD)/src/hashCalc.c -I $(PWD)/includes
+	($(PWD)/bin/hashCalcTest InitPS 792116435 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
+	($(PWD)/bin/hashCalcTest InitGateway 993770905 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
+
+clearTests:
+	rm $(PWD)/bin/*Test

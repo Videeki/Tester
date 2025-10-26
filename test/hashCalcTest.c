@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <assert.h>
 
@@ -7,6 +8,8 @@
 
 int main(int argc, char* argv[])
 {
-    int ret = SuperFastHash(argv[1], strlen(argv[1]));
-    return ret == atoi(argv[2]) ? EXIT_SUCCESS : EXIT_FAILURE;
+    uint32_t ret = fastHash(argv[1], strlen(argv[1]));
+    uint32_t expected = (uint32_t)atoi(argv[2]);
+
+    return ret == expected ? EXIT_SUCCESS : EXIT_FAILURE;
 }
