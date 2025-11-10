@@ -44,10 +44,16 @@ typedef struct socketclient
     int bufferSize;
 }SOCKETCLIENT;
 
-
 #endif  /* OS Selector */
 
+typedef struct socketclientlist SOCKETCLIENTLIST;
 
+struct socketclientlist
+{
+    char* name;
+    SOCKETCLIENT* sock;
+    SOCKETCLIENTLIST* next;
+};
 
 
 int socketClient_Init(SOCKETCLIENT* sock);
@@ -56,5 +62,9 @@ int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize);
 int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize);
 int socketClient_Deinit(SOCKETCLIENT* sock);
 int socketClient_Compact(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize);
+
+SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const SOCKETCLIENT* sock, const char* name);
+SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name);
+void socketClientList_free(SOCKETCLIENTLIST* list);
 
 #endif  /* SOCKETCLIENT_H */

@@ -305,6 +305,73 @@ int socketClient_Compact(SOCKETCLIENT* sock, char* message, char* buffer, int bu
     return EXIT_SUCCESS;
 }
 
+
+SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const SOCKETCLIENT* sock, const char* name)
+{
+    SOCKETCLIENTLIST* new;
+    new = (SOCKETCLIENTLIST*)malloc(sizeof(SOCKETCLIENTLIST));
+    new->next = NULL;
+
+    int nameLen = strlen(name);
+    new->name = (char*)malloc(nameLen * sizeof(char));
+    strncpy(new->name, name, nameLen);
+
+    new->sock = sock;
+
+    if(list == NULL)
+    {
+       list = new;
+    }
+    else
+    {
+        SOCKETCLIENTLIST* iter = list;
+        while(iter->next != NULL)
+            iter = iter->next;
+
+        iter->next = new;
+    }
+
+    return list;
+}
+
+
+SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name)
+{
+    SOCKETCLIENTLIST* iter = list;
+    while(iter->next != NULL)
+    {
+        if(!strcmp(iter->name, name))
+        {
+            return iter->sock;
+        }
+        iter = iter->next;
+    }
+
+    if(!strcmp(iter->name, name))
+    {
+        return iter->sock;
+    }
+    
+    return NULL;
+}
+
+
+void socketClientList_free(SOCKETCLIENTLIST* list)
+{
+    if(list == NULL) return;
+
+    SOCKETCLIENTLIST* iter = list;
+    while(iter != NULL)
+    {
+        SOCKETCLIENTLIST* next = iter->next;
+        free(iter->name);
+        free(iter);
+        iter = next;
+    }
+}
+
+
+
 #ifdef RUNABLE
 //  Windows:    gcc -Wall -D RUNABLE socketClient.c -o .\bin\SocketClient -lWs2_32
 //  Linux:      gcc -Wall -D RUNABLE socketClient.c -o ./bin/SocketClient
