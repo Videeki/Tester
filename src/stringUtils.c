@@ -37,19 +37,17 @@ stringList* stringList_from_string(stringList* list, char* str, char* separator)
 
     while(token != NULL)
     {   
-        stringList* new = (stringList*)malloc(sizeof(stringList));
-        new->next = NULL;
-        new->strLen = strlen(token);
-
         //Trim the token
         int tokenBegin = string_trim_before(token, 0);
-        int tokenEnd = string_trim_after(token, new->strLen + 1);
+        int tokenEnd = string_trim_after(token, 0);
         int tokenLen = tokenEnd - tokenBegin + 1;
 
+        stringList* new = (stringList*)malloc(sizeof(stringList));
+        new->next = NULL;
         new->strLen = tokenLen;
         new->str = (char*)malloc(new->strLen);
 
-        strncpy(new->str, token, new->strLen);
+        strncpy(new->str, token + tokenBegin, new->strLen);
 
         if(list == NULL)
         {
