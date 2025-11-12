@@ -17,6 +17,7 @@ Stop Test sequence
 [PreTest]
 Start PreTest sequence
 InitPS
+SocketINIT <- PSSocket <- 192.168.95.200 <- 42069
 InitGateway
 Stop PreTest sequence
 

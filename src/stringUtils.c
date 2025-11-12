@@ -48,6 +48,7 @@ stringList* stringList_from_string(stringList* list, char* str, char* separator)
         new->str = (char*)malloc(new->strLen);
 
         strncpy(new->str, token + tokenBegin, new->strLen);
+        new->str[new->strLen] = '\0';
 
         if(list == NULL)
         {
