@@ -30,18 +30,16 @@ int CMDProc(Parameters* list, char* cmd)
 
     case SocketINIT:
         printf("\e[38;2;0;255;0m%s\e[0m", cmdList->str);
-        stringList* iter = cmdList;
-        while(iter != NULL)
-        {
-            printf("\tParam: %s", iter->str);
-            iter = iter->next;
-        }
-        printf("\n");
+        printf("\tHost Name: %s", cmdList->next->str);
+        printf("\tHost Address: %s", cmdList->next->next->str);
+        printf("\tHost Port: %s\n", cmdList->next->next->next->str);
+        
         break;
 
     case SocketCLEAN:
         if(sockList != NULL)
-            socketClientList_free(sockList);
+            printf("Socklist\n");
+            //socketClientList_free(sockList);
         break;
 
     default:

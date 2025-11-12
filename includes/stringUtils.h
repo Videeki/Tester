@@ -21,6 +21,7 @@ struct strlist
 };
 
 stringList* stringList_from_string(stringList* list, char* str, char* separator);
+char* stringList_select_string(stringList* list, int index);
 void stringList_clear(stringList* list);
 
 

@@ -69,6 +69,19 @@ stringList* stringList_from_string(stringList* list, char* str, char* separator)
     return list;
 }
 
+
+char* stringList_select_string(stringList* list, int index)
+{
+    if(list == NULL) return NULL;
+
+    stringList* iter = list;
+    for(int i = 0; i < index; ++i)
+        iter = iter->next;
+
+    return iter->str;
+}
+
+
 void stringList_clear(stringList* list)
 {
     if(list == NULL) return;
