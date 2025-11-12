@@ -39,8 +39,6 @@ typedef struct socketclient
 typedef struct socketclient
 {
     int ConnectSocket;
-    char* ip_address;
-    int port;
     int bufferSize;
 }SOCKETCLIENT;
 
@@ -56,14 +54,14 @@ struct socketclientlist
 };
 
 
-int socketClient_Init(SOCKETCLIENT* sock);
+SOCKETCLIENT* socketClient_Init(const char* host, const int port);
 int socketClient_Send(SOCKETCLIENT* sock, char* message);
 int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize);
 int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize);
 int socketClient_Deinit(SOCKETCLIENT* sock);
-int socketClient_Compact(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize);
+//int socketClient_Compact(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize);
 
-SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const SOCKETCLIENT* sock, const char* name);
+SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const char* name, const char* ip_address, const int port);
 SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name);
 void socketClientList_free(SOCKETCLIENTLIST* list);
 

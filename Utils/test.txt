@@ -11,6 +11,7 @@ PostTest
 [Test]
 Start Test sequence
 SetPS
+SocketCOMM <- PSSocket <- Turn on
 Stop Test sequence
 
 

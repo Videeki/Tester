@@ -15,6 +15,7 @@
 #define InitPS      792116435
 #define InitGateway 993770905
 #define SocketINIT  549261615
+#define SocketCOMM  3323704766
 #define SocketCLEAN 2529897614
 
 

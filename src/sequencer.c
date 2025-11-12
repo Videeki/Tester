@@ -34,12 +34,20 @@ int CMDProc(Parameters* list, char* cmd)
         printf("\tHost Address: %s", cmdList->next->next->str);
         printf("\tHost Port: %s\n", cmdList->next->next->next->str);
         
+        sockList = socketClientList_append(sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
+        
+        break;
+
+    case SocketCOMM:
+        printf("Sent message: %s to %s", cmdList->next->next->str, cmdList->next->str);
         break;
 
     case SocketCLEAN:
         if(sockList != NULL)
-            printf("Socklist\n");
-            //socketClientList_free(sockList);
+        {
+            printf("Socklist close\n");
+            socketClientList_free(sockList);
+        }
         break;
 
     default:
