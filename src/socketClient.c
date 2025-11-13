@@ -40,8 +40,8 @@ SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
     }
 
 #elif __linux__
+    SOCKETCLIENT* sock = (SOCKETCLIENT*)malloc(sizeof(SOCKETCLIENT));
     ADDRINFO hints;
-    ADDRINFO *host;
 
 	memset(&hints, 0, sizeof(hints));		/* memset_s() */
 	hints.ai_family = AF_INET;			/* IPv4 connection */
@@ -49,7 +49,7 @@ SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
 	fprintf(stdout, "\e[38;2;0;0;255mSet all parameters\n\e[0m");
     char strPort[10] = "";
     sprintf(strPort, "%d", port);
-	ret = getaddrinfo(ip_address, strPort, &hints, &host);
+	ret = getaddrinfo(ip_address, strPort, &hints, &(sock->host));
 	fprintf(stdout, "\e[38;2;0;0;255mGetaddrinfo result: %d\n\e[0m", ret);
 	if(ret != 0)
 	{
@@ -58,27 +58,14 @@ SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
 	}
 
 	/* create a socket */
-    SOCKETCLIENT* sock = (SOCKETCLIENT*)malloc(sizeof(SOCKETCLIENT));
-	sock->ConnectSocket = socket(host->ai_family, host->ai_socktype, host->ai_protocol);
+    sock->ConnectSocket = socket(sock->host->ai_family, sock->host->ai_socktype, sock->host->ai_protocol);
 	fprintf(stdout, "\e[38;2;0;0;255mSocket result: %d\n\e[0m", sock->ConnectSocket);
 	if(sock->ConnectSocket == -1)
 	{
 		perror("Create socket failer\n");
-        freeaddrinfo(host);
+        freeaddrinfo(sock->host);
 		return NULL;
 	}
-
-	/* connect and get the info */
-	ret = connect(sock->ConnectSocket, host->ai_addr, host->ai_addrlen);
-	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
-	if(ret == -1)
-	{
-		perror("TCP client");
-        freeaddrinfo(host);
-	    close(sock->ConnectSocket);
-		return NULL;
-	}
-    freeaddrinfo(host);
 
 #endif
 
@@ -102,6 +89,17 @@ int socketClient_Send(SOCKETCLIENT* sock, char* message)
     }
 
 #elif __linux__
+    /* connect and get the info */
+	ret = connect(sock->ConnectSocket, sock->host->ai_addr, sock->host->ai_addrlen);
+	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
+	if(ret == -1)
+	{
+		perror("TCP client");
+        freeaddrinfo(sock->host);
+	    close(sock->ConnectSocket);
+		return ret;
+	}
+
     ret = send(sock->ConnectSocket, message, strlen(message), 0);
 	if(ret == -1)
 	{
@@ -136,6 +134,17 @@ int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize)
     }
 
 #elif __linux__
+    /* connect and get the info */
+	ret = connect(sock->ConnectSocket, sock->host->ai_addr, sock->host->ai_addrlen);
+	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
+	if(ret == -1)
+	{
+		perror("TCP client");
+        freeaddrinfo(sock->host);
+	    close(sock->ConnectSocket);
+		return ret;
+	}
+
     ret = recv(sock->ConnectSocket, buffer, bufferSize, 0);
     if(ret > 0)
     {
@@ -187,6 +196,17 @@ int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, i
     }
 
 #elif __linux__
+    /* connect and get the info */
+	ret = connect(sock->ConnectSocket, sock->host->ai_addr, sock->host->ai_addrlen);
+	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
+	if(ret == -1)
+	{
+		perror("TCP client");
+        freeaddrinfo(sock->host);
+	    close(sock->ConnectSocket);
+		return ret;
+	}
+
     ret = send(sock->ConnectSocket, message, strlen(message), 0);
 	if(ret == -1)
 	{
@@ -224,6 +244,7 @@ int socketClient_Deinit(SOCKETCLIENT* sock)
 
 #elif __linux__
     /* close-up */
+    freeaddrinfo(sock->host);
 	close(sock->ConnectSocket);
     free(sock);
 
@@ -349,19 +370,19 @@ SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const char* na
 SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name)
 {
     SOCKETCLIENTLIST* iter = list;
-    while(iter->next != NULL)
+    while(iter != NULL)
     {
-        if(!strcmp(iter->name, name))
+        if(!strncmp(iter->name, name, strlen(name)))
         {
             return iter->sock;
         }
         iter = iter->next;
     }
 
-    if(!strcmp(iter->name, name))
-    {
-        return iter->sock;
-    }
+    //if(!strcmp(iter->name, name))
+    //{
+    //    return iter->sock;
+    //}
     
     return NULL;
 }

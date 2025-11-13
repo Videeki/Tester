@@ -39,6 +39,7 @@ typedef struct socketclient
 typedef struct socketclient
 {
     int ConnectSocket;
+    ADDRINFO *host;
     int bufferSize;
 }SOCKETCLIENT;
 

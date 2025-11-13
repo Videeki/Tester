@@ -26,5 +26,10 @@ hashCalcTest:
 	($(PWD)/bin/hashCalcTest InitPS 792116435 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
 	($(PWD)/bin/hashCalcTest InitGateway 993770905 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
 
+socketClientTest:
+	gcc -Wall $(PWD)/test/socketClientTest.c -o $(PWD)/bin/socketClientTest $(PWD)/src/socketClient.c -I $(PWD)/includes
+	($(PWD)/bin/socketClientTest TestSocket_00 127.0.0.1 42069 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
+	($(PWD)/bin/socketClientTest TestSocket_01 127.0.0.1 42069 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
+
 clearTests:
 	rm $(PWD)/bin/*Test

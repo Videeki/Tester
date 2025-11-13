@@ -20,39 +20,68 @@ int CMDProc(Parameters* list, char* cmd)
 
     switch(cmdIndex)
     {
-    case InitPS:
-        printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "PSIP"), get_parameter(list, "PSHost"));
-        break;
-    
-    case InitGateway:
-        printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "GatewayIP"), get_parameter(list, "GatewayHost")); 
-        break;
+        case InitPS:
+        {
+            printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "PSIP"), get_parameter(list, "PSHost"));
+            break;
+        }
 
-    case SocketINIT:
-        printf("\e[38;2;0;255;0m%s\e[0m", cmdList->str);
-        printf("\tHost Name: %s", cmdList->next->str);
-        printf("\tHost Address: %s", cmdList->next->next->str);
-        printf("\tHost Port: %s\n", cmdList->next->next->next->str);
+        case InitGateway:
+        {
+            printf("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "GatewayIP"), get_parameter(list, "GatewayHost")); 
+            break;
+        }
+
+        case SocketINIT:
+        {
+            printf("\e[38;2;0;255;0m%s\e[0m", cmdList->str);
+            printf("\tHost Name: %s", cmdList->next->str);
+            printf("\tHost Address: %s", cmdList->next->next->str);
+            printf("\tHost Port: %s\n", cmdList->next->next->next->str);
         
-        sockList = socketClientList_append(sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
+            sockList = socketClientList_append(sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
+            if(sockList == NULL)
+                fprintf(stderr, "Unsuccesfull sockList append");
         
-        break;
+            break;
+        }
 
-    case SocketCOMM:
-        printf("Sent message: %s to %s", cmdList->next->next->str, cmdList->next->str);
-        break;
+        case SocketCOMM:
+        {
+            int buffersize = 1024;
+            char buffer[buffersize];
 
-    case SocketCLEAN:
-        if(sockList != NULL)
+            memset(buffer, 0, buffersize);
+        
+            if(sockList == NULL)
+                fprintf(stderr, "ERROR -> The sockList lost the value\n");
+            else
+                printf("DEBUG -> The sockList is alive\n");
+
+            SOCKETCLIENT* tmp = socketClinetList_get(sockList, cmdList->next->str);
+            if(tmp != NULL)
+            {
+                socketClient_Send_Recieve(tmp, cmdList->next->next->str, buffer, buffersize);
+                printf("DEBUG -> Sent message: %s to %s\n", cmdList->next->next->str, cmdList->next->str);
+            }
+            else
+                fprintf(stderr, "Undefined socket name: %s\n", cmdList->next->str);
+            break;
+        }
+
+        case SocketCLEAN:
         {
             printf("Socklist close\n");
-            socketClientList_free(sockList);
+            if(sockList != NULL)
+                socketClientList_free(sockList);
+            break;
         }
-        break;
 
-    default:
-        printf("%s\n", cmd);
-        break;
+        default:
+        {
+            printf("%s\n", cmd);
+            break;
+        }
     }
 
     stringList_clear(cmdList);
