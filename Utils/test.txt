@@ -33,9 +33,10 @@ Stop PreTest sequence
 [PostTest]
 Start PostTest sequence
 DeInitPS
-SocketCOMM <- PSSocket <- __STOP__
-SocketCOMM <- GWSocket <- __STOP__
-SocketCLEAN
+SocketCOMM <- PSSocket <- shutdown
+SocketCOMM <- GWSocket <- shutdown
+SocketCLEAN <- PSSocket
+SocketCLEAN <- GWSocket
 Finish
 Stop PostTest sequence
 

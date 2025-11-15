@@ -261,17 +261,30 @@ void socketClientList_free(SOCKETCLIENTLIST* list, const char* name)
 {
     if(list == NULL) return;
     
-
+    SOCKETCLIENTLIST* lag = NULL;
     SOCKETCLIENTLIST* iter = list;
-    while(iter != NULL)
+    while(iter != NULL && !strncmp(iter->name, name, strlen(name)))
     {
-        if(!strncmp(iter->name, name, strlen(name)))
-        {
-            free(iter->name);
-            free(iter->sock);
-            return;
-        }
+        lag = iter;
         iter = iter->next;
+    }
+
+    if(iter == NULL)
+    {
+        /* Do nothing */
+    }
+    else if(lag == NULL)
+    {
+        SOCKETCLIENTLIST* new = iter->next;
+        free(iter->name);
+        free(iter);
+        list = new;
+    }
+    else
+    {
+        lag->next = iter->next;
+        free(iter->name);
+        free(iter);
     }
 }
 

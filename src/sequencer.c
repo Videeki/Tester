@@ -70,7 +70,8 @@ int CMDProc(Parameters* list, char* cmd)
         {
             printf("Socklist close\n");
             if(sockList != NULL)
-                socketClientListAll_free(sockList);
+                //socketClientListAll_free(sockList);
+                socketClientList_free(sockList, cmdList->next->str);
             break;
         }
 
