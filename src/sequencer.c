@@ -7,7 +7,7 @@ int CMDProc(Parameters* list, char* cmd)
     stringList* cmdList = NULL;
     cmdList = stringList_from_string(cmdList, cmd, "<-");
 
-    printf("CMDPRoc -> ");
+    printf("CMDPRoc\t-> ");
 
     uint32_t cmdIndex = 0;
     if(cmdList == NULL || cmdList->next == NULL)
@@ -15,7 +15,6 @@ int CMDProc(Parameters* list, char* cmd)
     else
     {
         cmdIndex = fastHash(cmdList->str, cmdList->strLen);
-        printf("DEBUG: %s: %d = %d\n", cmdList->str, cmdList->strLen, cmdIndex);
     }
 
     switch(cmdIndex)
@@ -54,18 +53,16 @@ int CMDProc(Parameters* list, char* cmd)
             memset(buffer, 0, buffersize);
         
             if(sockList == NULL)
-                fprintf(stderr, "ERROR -> The sockList lost the value\n");
-            else
-                printf("DEBUG -> The sockList is alive\n");
+                fprintf(stderr, "ERROR\t-> The sockList lost the value\n");
 
             SOCKETCLIENT* tmp = socketClinetList_get(sockList, cmdList->next->str);
             if(tmp != NULL)
             {
+                printf("DEBUG\t-> Send message: %s to %s\n", cmdList->next->next->str, cmdList->next->str);
                 socketClient_Send_Recieve(tmp, cmdList->next->next->str, buffer, buffersize);
-                printf("DEBUG -> Sent message: %s to %s\n", cmdList->next->next->str, cmdList->next->str);
             }
             else
-                fprintf(stderr, "Undefined socket name: %s\n", cmdList->next->str);
+                fprintf(stderr, "ERROR\t-> Undefined socket name: %s\n", cmdList->next->str);
             break;
         }
 
@@ -73,7 +70,7 @@ int CMDProc(Parameters* list, char* cmd)
         {
             printf("Socklist close\n");
             if(sockList != NULL)
-                socketClientList_free(sockList);
+                socketClientListAll_free(sockList);
             break;
         }
 

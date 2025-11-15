@@ -64,6 +64,7 @@ int socketClient_Deinit(SOCKETCLIENT* sock);
 
 SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const char* name, const char* ip_address, const int port);
 SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name);
-void socketClientList_free(SOCKETCLIENTLIST* list);
+void socketClientList_free(SOCKETCLIENTLIST* list, const char* name);
+void socketClientListAll_free(SOCKETCLIENTLIST* list);
 
 #endif  /* SOCKETCLIENT_H */

@@ -3,6 +3,9 @@
 SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
 {
     int ret = 0;
+    int bufferSize = 1024;
+    char buffer[bufferSize];
+    memset(buffer, 0, bufferSize);
 
 #ifdef _WIN32
     // Initialize Winsock
@@ -46,11 +49,11 @@ SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
 	memset(&hints, 0, sizeof(hints));		/* memset_s() */
 	hints.ai_family = AF_INET;			/* IPv4 connection */
 	hints.ai_socktype = SOCK_STREAM;	/* TCP, streaming */
-	fprintf(stdout, "\e[38;2;0;0;255mSet all parameters\n\e[0m");
+
     char strPort[10] = "";
     sprintf(strPort, "%d", port);
 	ret = getaddrinfo(ip_address, strPort, &hints, &(sock->host));
-	fprintf(stdout, "\e[38;2;0;0;255mGetaddrinfo result: %d\n\e[0m", ret);
+
 	if(ret != 0)
 	{
 		perror("Wrong address format\n");
@@ -59,13 +62,37 @@ SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
 
 	/* create a socket */
     sock->ConnectSocket = socket(sock->host->ai_family, sock->host->ai_socktype, sock->host->ai_protocol);
-	fprintf(stdout, "\e[38;2;0;0;255mSocket result: %d\n\e[0m", sock->ConnectSocket);
+
 	if(sock->ConnectSocket == -1)
 	{
 		perror("Create socket failer\n");
         freeaddrinfo(sock->host);
 		return NULL;
 	}
+
+    /* connect and get the info */
+	ret = connect(sock->ConnectSocket, sock->host->ai_addr, sock->host->ai_addrlen);
+
+	if(ret == -1)
+	{
+		perror("TCP client");
+        freeaddrinfo(sock->host);
+	    close(sock->ConnectSocket);
+		return NULL;
+	}
+
+    ret = recv(sock->ConnectSocket, buffer, bufferSize, 0);
+    if(ret > 0)
+    {
+        buffer[ret] = '\0';
+	    printf("DEBUG\t-> %s\n",buffer);
+    }
+	else
+    {
+        perror("Recv failed\n");
+        close(sock->ConnectSocket);
+		return NULL;
+    }
 
 #endif
 
@@ -89,24 +116,14 @@ int socketClient_Send(SOCKETCLIENT* sock, char* message)
     }
 
 #elif __linux__
-    /* connect and get the info */
-	ret = connect(sock->ConnectSocket, sock->host->ai_addr, sock->host->ai_addrlen);
-	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
-	if(ret == -1)
-	{
-		perror("TCP client");
-        freeaddrinfo(sock->host);
-	    close(sock->ConnectSocket);
-		return ret;
-	}
-
     ret = send(sock->ConnectSocket, message, strlen(message), 0);
 	if(ret == -1)
 	{
-		perror("Send failed");
+		perror("Send failed\n");
         close(sock->ConnectSocket);
 		return ret;
-	}    
+	}
+      
 
 #endif
 
@@ -134,17 +151,6 @@ int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize)
     }
 
 #elif __linux__
-    /* connect and get the info */
-	ret = connect(sock->ConnectSocket, sock->host->ai_addr, sock->host->ai_addrlen);
-	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
-	if(ret == -1)
-	{
-		perror("TCP client");
-        freeaddrinfo(sock->host);
-	    close(sock->ConnectSocket);
-		return ret;
-	}
-
     ret = recv(sock->ConnectSocket, buffer, bufferSize, 0);
     if(ret > 0)
     {
@@ -153,7 +159,7 @@ int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize)
     }
 	else
     {
-        perror("Recv failed");
+        perror("Recv failed\n");
         close(sock->ConnectSocket);
 		return ret;
     }
@@ -168,70 +174,12 @@ int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, i
 {
     int ret = 0;
 
-#ifdef _WIN32
-    // Send data to the server
-    //const char* message = "Hello, Server!";
-    ret = send(sock->ConnectSocket, message, strlen(message), 0);
+    ret = socketClient_Send(sock, message);
+    if(ret < 0) return ret;
 
-    if(ret == SOCKET_ERROR)
-    {
-        printf(SOCKETCLIENT_ERROR"send failed with error: %d\n"SOCKETCLIENT_RESET, WSAGetLastError());
-        closesocket(sock->ConnectSocket);
-        WSACleanup();
-        return ret;
-    }
+    ret = socketClient_Recieve(sock, buffer, bufferSize);
 
-    // Receive data from the server
-    int bytesReceived = recv(sock->ConnectSocket, buffer, sock->bufferSize - 1, 0);
-    if(bytesReceived > 0)
-    {
-        buffer[bytesReceived] = '\0'; // Null-terminate the received data
-    }
-    else
-    {
-        printf(SOCKETCLIENT_ERROR"recieve failed with error: %d\n"SOCKETCLIENT_RESET, WSAGetLastError());
-        closesocket(sock->ConnectSocket);
-        WSACleanup();
-        return SOCKET_ERROR;
-    }
-
-#elif __linux__
-    /* connect and get the info */
-	ret = connect(sock->ConnectSocket, sock->host->ai_addr, sock->host->ai_addrlen);
-	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
-	if(ret == -1)
-	{
-		perror("TCP client");
-        freeaddrinfo(sock->host);
-	    close(sock->ConnectSocket);
-		return ret;
-	}
-
-    ret = send(sock->ConnectSocket, message, strlen(message), 0);
-	if(ret == -1)
-	{
-		perror("Send failed");
-        close(sock->ConnectSocket);
-		return ret;
-	}    
-
-    ret = recv(sock->ConnectSocket, buffer, bufferSize, 0);
-    if(ret > 0)
-    {
-        buffer[ret] = '\0';
-	    printf("%s\n",buffer);
-    }
-	else
-    {
-        perror("Recv failed");
-        close(sock->ConnectSocket);
-		return ret;
-    }
-
-
-#endif
-
-    return EXIT_SUCCESS;
+    return ret;
 }
 
 
@@ -253,80 +201,6 @@ int socketClient_Deinit(SOCKETCLIENT* sock)
     return 0;
 }
 
-
-//int socketClient_Compact(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize)
-//{
-//    int ret = 0; 
-//
-//#ifdef _WIN32
-//
-//#elif __linux__
-//    ADDRINFO hints;
-//    ADDRINFO *host;
-//
-//	memset(&hints, 0, sizeof(hints));		/* memset_s() */
-//	hints.ai_family = AF_INET;			/* IPv4 connection */
-//	hints.ai_socktype = SOCK_STREAM;	/* TCP, streaming */
-//	fprintf(stdout, "\e[38;2;0;0;255mSet all parameters\n\e[0m");
-//    char strPort[10] = "";
-//    sprintf(strPort, "%d", sock->port);
-//	ret = getaddrinfo(sock->ip_address, strPort, &hints, &host);
-//	fprintf(stdout, "\e[38;2;0;0;255mGetaddrinfo result: %d\n\e[0m", ret);
-//	if(ret != 0)
-//	{
-//		perror("Wrong address format\n");
-//		return -1;
-//	}
-//
-//	/* create a socket */
-//	sock->ConnectSocket = socket(host->ai_family, host->ai_socktype, host->ai_protocol);
-//	fprintf(stdout, "\e[38;2;0;0;255mSocket result: %d\n\e[0m", sock->ConnectSocket);
-//	if(sock->ConnectSocket == -1)
-//	{
-//		perror("Create socket failer\n");
-//        freeaddrinfo(host);
-//		return -1;
-//	}
-//
-//	/* connect and get the info */
-//	ret = connect(sock->ConnectSocket, host->ai_addr, host->ai_addrlen);
-//	fprintf(stdout, "\e[38;2;0;0;255mConnection result: %d\n\e[0m", ret);
-//	if(ret == -1)
-//	{
-//		perror("TCP client");
-//        freeaddrinfo(host);
-//	    close(sock->ConnectSocket);
-//		return -1;
-//	}
-//    freeaddrinfo(host);
-//
-//    ret = send(sock->ConnectSocket, message, strlen(message), 0);
-//	if(ret == -1)
-//	{
-//		perror("Send failed");
-//        close(sock->ConnectSocket);
-//		return ret;
-//	}    
-//
-//    ret = recv(sock->ConnectSocket, buffer, bufferSize, 0);
-//    if(ret > 0)
-//    {
-//        buffer[ret] = '\0';
-//	    printf("%s\n",buffer);
-//    }
-//	else
-//    {
-//        perror("Recv failed");
-//        close(sock->ConnectSocket);
-//		return ret;
-//    }
-//
-//    close(sock->ConnectSocket);
-//
-//#endif
-//
-//    return EXIT_SUCCESS;
-//}
 
 
 SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const char* name, const char* ip_address, const int port)
@@ -378,19 +252,34 @@ SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name)
         }
         iter = iter->next;
     }
-
-    //if(!strcmp(iter->name, name))
-    //{
-    //    return iter->sock;
-    //}
     
     return NULL;
 }
 
 
-void socketClientList_free(SOCKETCLIENTLIST* list)
+void socketClientList_free(SOCKETCLIENTLIST* list, const char* name)
 {
     if(list == NULL) return;
+    
+
+    SOCKETCLIENTLIST* iter = list;
+    while(iter != NULL)
+    {
+        if(!strncmp(iter->name, name, strlen(name)))
+        {
+            free(iter->name);
+            free(iter->sock);
+            return;
+        }
+        iter = iter->next;
+    }
+}
+
+
+void socketClientListAll_free(SOCKETCLIENTLIST* list)
+{
+    if(list == NULL) return;
+    
 
     SOCKETCLIENTLIST* iter = list;
     while(iter != NULL)

@@ -11,14 +11,21 @@ PostTest
 [Test]
 Start Test sequence
 SetPS
-SocketCOMM <- PSSocket <- Turn on
+SocketCOMM <- PSSocket <- PSTurnON
+SocketCOMM <- GWSocket <- GWTurnON
+Do something
+Do something else
+And anothor important doing
+SocketCOMM <- PSSocket <- PSTurnOFF
+SocketCOMM <- GWSocket <- GWTurnOFF
 Stop Test sequence
 
 
 [PreTest]
 Start PreTest sequence
 InitPS
-SocketINIT <- PSSocket <- 127.0.0.1 <- 42069
+SocketINIT <- PSSocket <- 127.0.0.1 <- 42042
+SocketINIT <- GWSocket <- 127.0.0.1 <- 42069
 InitGateway
 Stop PreTest sequence
 
@@ -26,6 +33,9 @@ Stop PreTest sequence
 [PostTest]
 Start PostTest sequence
 DeInitPS
+SocketCOMM <- PSSocket <- __STOP__
+SocketCOMM <- GWSocket <- __STOP__
+SocketCLEAN
 Finish
 Stop PostTest sequence
 
