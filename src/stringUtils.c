@@ -22,6 +22,7 @@ int string_trim_after(const char* str, int offset)
     return i;
 }
 
+
 int index_char(char* str, char chr)
 {
     for(int i = 0; str[i] != '\0'; i++)
@@ -30,6 +31,124 @@ int index_char(char* str, char chr)
 
     return -1;
 }
+
+
+PATH string_path_init(const char* path)
+{
+    int pathLen = strlen(path);
+    
+    PATH pathInit = (PATH)malloc(pathLen * sizeof(char));
+    strncpy(pathInit, path, pathLen);
+    pathInit[pathLen] = '\0';
+
+    return pathInit;
+}
+
+
+PATH string_path_append(PATH self, const char* pathItem)
+{
+    if(self == NULL) return NULL;
+    if(pathItem == NULL) return self;
+
+    int selfLen = strlen(self);
+    int pathItemLen = strlen(pathItem);
+    int newSelfLen = selfLen + 1 + pathItemLen;
+
+    self = (PATH)realloc(self, newSelfLen * sizeof(char));
+    
+    #ifdef _WIN32
+        self[selfLen] = '\\';
+    #else
+        self[selfLen] = '/';
+    #endif
+
+    self[selfLen + 1] = '\0';
+    strncat(self, pathItem, pathItemLen);
+
+    self[newSelfLen] = '\0';
+
+    return self;
+}
+
+
+PATH string_path_append_items(PATH self, ...)
+{
+    va_list args;
+
+    va_start(args, self);
+
+    char* iter = NULL;
+    while((iter = va_arg(args, PATH)) != NULL)
+        self = string_path_append(self, iter);
+
+    va_end(args);
+
+    return self;
+}
+
+
+void string_path_free(PATH self)
+{
+    if(self != NULL)
+        free(self);
+}
+
+
+XPATH string_xpath_init(const char* xpath)
+{
+    int xpathLen = strlen(xpath);
+    
+    XPATH xpathInit = (XPATH)malloc(xpathLen * sizeof(char));
+    strncpy(xpathInit, xpath, xpathLen);
+    xpathInit[xpathLen] = '\0';
+
+    return xpathInit;
+}
+
+
+XPATH string_xpath_append(XPATH self, const char* xpathItem)
+{
+    if(self == NULL) return NULL;
+    if(xpathItem == NULL) return self;
+
+    int selfLen = strlen(self);
+    int xpathItemLen = strlen(xpathItem);
+    int newSelfLen = selfLen + 1 + xpathItemLen;
+
+    self = (XPATH)realloc(self, newSelfLen * sizeof(char));
+
+    self[selfLen] = '/';
+    self[selfLen + 1] = '\0';
+    strncat(self, xpathItem, xpathItemLen);
+
+    self[newSelfLen] = '\0';
+
+    return self;
+}
+
+
+XPATH string_xpath_append_items(XPATH self, ...)
+{
+    va_list args;
+
+    va_start(args, self);
+
+    char* iter = NULL;
+    while((iter = va_arg(args, XPATH)) != NULL)
+        self = string_xpath_append(self, iter);
+
+    va_end(args);
+
+    return self;
+}
+
+
+void string_xpath_free(XPATH self)
+{
+    if(self != NULL)
+        free(self);
+}
+
 
 stringList* stringList_from_string(stringList* list, char* str, char* separator)
 {
