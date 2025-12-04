@@ -1,6 +1,27 @@
 #include "stringUtils.h"
 
 
+void string_trim(char* str)
+{
+    size_t len;
+    int i;
+
+    if(str == NULL) return;
+
+    len = strlen(str);
+    if (len == 0) return;
+
+    /* trim right */
+    for (i = len - 1; (i >= 0) && (str[i] > 32); i--) {}
+    str[i + 1] = '\0';
+    
+    /* trim left */
+    for (i = 0; (str[i] != '\0') && (str[i] > 32); i++) {}
+    memmove(str, &str[i], len - i);
+    str[len - i] = '\0';
+}
+
+
 int string_trim_before(const char* str, int offset)
 {
     int i = 0;
@@ -23,7 +44,7 @@ int string_trim_after(const char* str, int offset)
 }
 
 
-int index_char(char* str, char chr)
+int string_char_index(char* str, char chr)
 {
     for(int i = 0; str[i] != '\0'; i++)
         if(str[i] == chr)

@@ -33,7 +33,7 @@ int parser(PARSED* parsed, const char* path)
         {
             parsed->seqs = sequence_append(parsed->seqs, fileContent, 1);
         }
-        else if(index_char(fileContent, '=') >= 0)
+        else if(string_char_index(fileContent, '=') >= 0)
         {
             parsed->params = param_append(parsed->params, fileContent);
         }

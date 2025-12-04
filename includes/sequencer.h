@@ -10,6 +10,7 @@
 #include "stringUtils.h"
 #include "socketClient.h"
 #include "serialClient.h"
+#include "logger.h"
 
 
 #define InitPS      792116435
@@ -17,7 +18,6 @@
 #define SocketINIT  549261615
 #define SocketCOMM  3323704766
 #define SocketCLEAN 2529897614
-
 
 
 int CMDProc(Parameters* list, char* cmd);

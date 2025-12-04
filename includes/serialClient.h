@@ -6,7 +6,7 @@
 #include <string.h>
 
 
-enum stopBits {ONE, ONE_AND_HALF, TWO};
+enum stopBits {ONE, ONE_AND_A_HALF, TWO};
 enum parity {NONE, ODD, EVEN, MARK, SPACE};
 
 typedef struct serialparams
