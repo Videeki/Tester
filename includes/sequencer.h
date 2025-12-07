@@ -18,6 +18,8 @@
 #define SocketINIT  549261615
 #define SocketCOMM  3323704766
 #define SocketCLEAN 2529897614
+#define LogINIT     403310502
+#define LogFREE     2255366703
 
 
 int CMDProc(Parameters* list, char* cmd);

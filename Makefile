@@ -6,7 +6,7 @@ RESET := "\e[0m"
 
 
 all:
-	gcc -g -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -fmem-report
+	gcc -g -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON -fmem-report
 	gcc -g -Wall -c $(PWD)/src/parser.c -o $(PWD)/bin/parser.o -I $(PWD)/includes -fmem-report
 	gcc -g -Wall -c $(PWD)/src/stringUtils.c -o $(PWD)/bin/stringUtils.o -I $(PWD)/includes -fmem-report
 	gcc -g -Wall -c $(PWD)/src/hashCalc.c -o $(PWD)/bin/hashCalc.o -I $(PWD)/includes -fmem-report

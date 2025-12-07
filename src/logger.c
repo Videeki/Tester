@@ -1,6 +1,6 @@
 #include "logger.h"
 
-void log_config_init(char* path)
+void log_path_init(char* path)
 {
     if(path == NULL) return;
 
@@ -11,7 +11,13 @@ void log_config_init(char* path)
 }
 
 
-void log_config_free()
+char* log_path_get()
+{
+    return logPath;
+}
+
+
+void log_path_free()
 {
     if(logPath != NULL)
     {

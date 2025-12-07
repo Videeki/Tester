@@ -1,11 +1,13 @@
 #Let's get ready to rumble!
 [Main]
+LogINIT <- ./Utils/TestLog.log
 PreTest
 --------------------
 Test
 --------------------
 PostTest
 --------------------
+LogFREE
 
 
 [Test]

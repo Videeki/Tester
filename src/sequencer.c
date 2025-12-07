@@ -7,8 +7,6 @@ int CMDProc(Parameters* list, char* cmd)
     stringList* cmdList = NULL;
     cmdList = stringList_from_string(cmdList, cmd, "<-");
 
-    LOG("CMDPRoc\t-> ");
-
     uint32_t cmdIndex = 0;
     if(cmdList == NULL || cmdList->next == NULL)
         cmdIndex = fastHash(cmd, strlen(cmd));
@@ -33,10 +31,14 @@ int CMDProc(Parameters* list, char* cmd)
 
         case SocketINIT:
         {
-            LOG("\e[38;2;0;255;0m%s\e[0m", cmdList->str);
-            LOG("\tHost Name: %s", cmdList->next->str);
-            LOG("\tHost Address: %s", cmdList->next->next->str);
-            LOG("\tHost Port: %s\n", cmdList->next->next->next->str);
+            LOG("\e[38;2;0;255;0m%s\e[0m    \
+                 \tHost Name: %s    \
+                 \tHost Address: %s \
+                 \tHost Port: %s\n",
+                 cmdList->str,
+                 cmdList->next->str,
+                 cmdList->next->next->str,
+                 cmdList->next->next->next->str);
         
             sockList = socketClientList_append(sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
             if(sockList == NULL)
@@ -72,6 +74,20 @@ int CMDProc(Parameters* list, char* cmd)
             if(sockList != NULL)
                 //socketClientListAll_free(sockList);
                 socketClientList_free(sockList, cmdList->next->str);
+            break;
+        }
+
+        case LogINIT:
+        {
+            LOG("Init log path: %s\n", cmdList->next->str);
+            log_path_init(cmdList->next->str);
+            break;
+        }
+
+        case LogFREE:
+        {
+            LOG("Free log path\n");
+            log_path_free();
             break;
         }
 
