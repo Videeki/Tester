@@ -1,7 +1,7 @@
 #include "sequencer.h"
 
-
-int CMDProc(Parameters* list, char* cmd)
+//int CMDProc(Parameters* list, char* cmd);
+int CMDProc(TESTER* data, char* cmd)
 {
     static SOCKETCLIENTLIST* sockList = NULL;
     stringList* cmdList = NULL;
@@ -19,13 +19,13 @@ int CMDProc(Parameters* list, char* cmd)
     {
         case InitPS:
         {
-            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "PSIP"), get_parameter(list, "PSHost"));
+            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(data->desc->params, "PSIP"), get_parameter(data->desc->params, "PSHost"));
             break;
         }
 
         case InitGateway:
         {
-            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(list, "GatewayIP"), get_parameter(list, "GatewayHost")); 
+            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(data->desc->params, "GatewayIP"), get_parameter(data->desc->params, "GatewayHost")); 
             break;
         }
 
@@ -40,8 +40,8 @@ int CMDProc(Parameters* list, char* cmd)
                  cmdList->next->next->str,
                  cmdList->next->next->next->str);
         
-            sockList = socketClientList_append(sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
-            if(sockList == NULL)
+            data->sockList = socketClientList_append(data->sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
+            if(data->sockList == NULL)
                 ERROR("Unsuccesfull sockList append");
         
             break;
@@ -71,7 +71,7 @@ int CMDProc(Parameters* list, char* cmd)
         case SocketCLEAN:
         {
             LOG("Socklist close\n");
-            if(sockList != NULL)
+            if(data->sockList != NULL)
                 //socketClientListAll_free(sockList);
                 socketClientList_free(sockList, cmdList->next->str);
             break;
@@ -104,31 +104,32 @@ int CMDProc(Parameters* list, char* cmd)
 }
 
 
-void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq)
+//void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq)
+void sequencer(TESTER* data, const char* actSeq)
 {
-    if(keys == NULL) return;
+    if(data->desc->keys == NULL) return;
     
-    if(sequence_index(seqs, actSeq) >= 0)
+    if(sequence_index(data->desc->seqs, actSeq) >= 0)
     {
-        Keys* keyiter = keys;
+        Keys* keyiter = data->desc->keys;
         while(keyiter->next != NULL)
         {
             if(!strcmp(keyiter->sequence, actSeq))
             {
-                if(sequence_index(seqs, keyiter->key) >= 0)
-                    sequencer(seqs, keyiter, params, keyiter->key);
+                if(sequence_index(data->desc->seqs, keyiter->key) >= 0)
+                    sequencer(data, keyiter->key);
                 else
-                    CMDProc(params, keyiter->key);
+                    CMDProc(data, keyiter->key);
             }
             keyiter = keyiter->next;
         }
 
         if(!strcmp(keyiter->sequence, actSeq))
         {
-            if(sequence_index(seqs, keyiter->key) >= 0)
-                sequencer(seqs, keyiter, params, keyiter->key);
+            if(sequence_index(data->desc->seqs, keyiter->key) >= 0)
+                sequencer(data, keyiter->key);
             else
-                CMDProc(params, keyiter->key);
+                CMDProc(data, keyiter->key);
         }
     }
 }

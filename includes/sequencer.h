@@ -22,7 +22,15 @@
 #define LogFREE     2255366703
 
 
-int CMDProc(Parameters* list, char* cmd);
-void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq);
+typedef struct tester
+{
+    PARSED* desc;
+    SOCKETCLIENTLIST* sockList;
+}TESTER;
+
+//int CMDProc(Parameters* list, char* cmd);
+int CMDProc(TESTER* data, char* cmd);
+//void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq);
+void sequencer(TESTER* data, const char* actSeq);
 
 #endif  /* SEQUENCER_H */

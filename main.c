@@ -4,6 +4,8 @@
 
 #include "includes/parser.h"
 #include "includes/sequencer.h"
+//#include "includes/memManager.h"
+#include "includes/socketClient.h"
 
 
 int main(int argc, char* argv[])
@@ -15,8 +17,6 @@ int main(int argc, char* argv[])
     }
 
     PARSED testDescFile;
-
-
     testDescFile.seqs = NULL;
     testDescFile.keys = NULL;
     testDescFile.params = NULL;
@@ -45,7 +45,12 @@ int main(int argc, char* argv[])
     else
         strncpy(startSequence, testDescFile.seqs->sequence, strlen(testDescFile.seqs->sequence));
 
-    sequencer(testDescFile.seqs, testDescFile.keys, testDescFile.params, startSequence);
+    TESTER tester;
+    tester.desc = &testDescFile;
+    //sequencer(testDescFile.seqs, testDescFile.keys, testDescFile.params, startSequence);
+    sequencer(&tester, startSequence);
+
+    socketClientListAll_free(tester.sockList);
 
     keys_free(testDescFile.keys);
     param_free(testDescFile.params);
