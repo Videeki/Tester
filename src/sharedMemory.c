@@ -6,7 +6,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/types.h>
-#include "shared_memory.h"
+#include "sharedMemory.h"
 
 #define IPC_RESULT_ERROR (-1)
 
