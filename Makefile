@@ -6,12 +6,22 @@ RESET := "\e[0m"
 
 
 all:
+	gcc -g -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON
+	gcc -g -Wall -c $(PWD)/src/parser.c -o $(PWD)/bin/parser.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/stringUtils.c -o $(PWD)/bin/stringUtils.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/hashCalc.c -o $(PWD)/bin/hashCalc.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/socketClient.c -o $(PWD)/bin/socketClient.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/sequencer.c -o $(PWD)/bin/sequencer.o -I $(PWD)/includes
+	gcc -g -Wall ./main.c -o $(PWD)/bin/Tester $(PWD)/bin/logger.o $(PWD)/bin/parser.o $(PWD)/bin/stringUtils.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/sequencer.o
+	rm $(PWD)/bin/stringUtils.o $(PWD)/bin/sequencer.o $(PWD)/bin/parser.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/logger.o
+
+allinfo:
 	gcc -g -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON -fmem-report
 	gcc -g -Wall -c $(PWD)/src/parser.c -o $(PWD)/bin/parser.o -I $(PWD)/includes -fmem-report
 	gcc -g -Wall -c $(PWD)/src/stringUtils.c -o $(PWD)/bin/stringUtils.o -I $(PWD)/includes -fmem-report
 	gcc -g -Wall -c $(PWD)/src/hashCalc.c -o $(PWD)/bin/hashCalc.o -I $(PWD)/includes -fmem-report
-	gcc -g -Wall -c $(PWD)/src/socketClient.c -o $(PWD)/bin/socketClient.o -I $(PWD)/includes -fmem-report
-	gcc -g -Wall -c $(PWD)/src/sequencer.c -o $(PWD)/bin/sequencer.o -I $(PWD)/includes -fmem-report
+	gcc -g -Wall -c $(PWD)/src/socketClient.c -o $(PWD)/bin/socketClient.o -I $(PWD)/includes $(PWD)/bin/logger.o -fmem-report
+	gcc -g -Wall -c $(PWD)/src/sequencer.c -o $(PWD)/bin/sequencer.o -I $(PWD)/includes $(PWD)/bin/logger.o -fmem-report
 	gcc -g -Wall ./main.c -o $(PWD)/bin/Tester $(PWD)/bin/parser.o $(PWD)/bin/stringUtils.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/sequencer.o $(PWD)/bin/logger.o -fmem-report
 	rm $(PWD)/bin/stringUtils.o $(PWD)/bin/sequencer.o $(PWD)/bin/parser.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/logger.o
 

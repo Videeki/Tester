@@ -7,6 +7,8 @@
 #include <string.h>
 //#include <glib.h>
 
+#include "logger.h"
+
 #define WIN32_LEAN_AND_MEAN
 #define SOCKETCLIENT_ERROR "\e[38;2;255;0;0m"
 #define SOCKETCLIENT_WARNING "\e[38;2;255;255;0m"

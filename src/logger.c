@@ -1,6 +1,8 @@
 #include "logger.h"
 
-void log_path_init(char* path)
+
+static char* logPath = NULL;
+void log_path_init(const char* path)
 {
     if(path == NULL) return;
 

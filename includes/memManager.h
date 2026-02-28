@@ -11,16 +11,18 @@
 #include "serialClient.h"
 
 
+static void logPathFree(void** path);
+
 static void seqListFree(void** seqList);
 static void parListFree(void** parList);
 static void keyListFree(void** keyList);
 static void sockClientListFree(void** sockClientList);
 
-#define SEQLIST(buffer) Sequences* buffer __attribute__((cleanup(seqListFree))) = NULL;
-#define PARLIST(buffer) Parameters* buffer __attribute__((cleanup(parListFree))) = NULL;
-#define KEYLIST(buffer) Keys* buffer __attribute__((cleanup(keyListFree))) = NULL;
-
-#define SOCKCLIENTLIST(buffer) SOCKETCLIENTLIST* buffer __attribute__((cleanup(sockClientListFree))) = NULL;
+#define LOGPATH(buffer) char* buffer __attribute__((cleanup(logPathFree))) = NULL
+#define SEQLIST(buffer) Sequences* buffer __attribute__((cleanup(seqListFree))) = NULL
+#define PARLIST(buffer) Parameters* buffer __attribute__((cleanup(parListFree))) = NULL
+#define KEYLIST(buffer) Keys* buffer __attribute__((cleanup(keyListFree))) = NULL
+#define SOCKCLIENTLIST(buffer) SOCKETCLIENTLIST* buffer __attribute__((cleanup(sockClientListFree))) = NULL
 
 void memoryFree(void* mem);
 

@@ -5,12 +5,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "logger.h"
 #include "parser.h"
 #include "hashCalc.h"
 #include "stringUtils.h"
 #include "socketClient.h"
 #include "serialClient.h"
-#include "logger.h"
 
 
 #define InitPS      792116435

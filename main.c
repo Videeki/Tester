@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
     int ret = 0;
     ret = parser(&testDescFile, argv[1]);
-    
+
     if(ret)
     {
         perror("Unsuccessfull parsing");
@@ -47,10 +47,13 @@ int main(int argc, char* argv[])
 
     TESTER tester;
     tester.desc = &testDescFile;
-    //sequencer(testDescFile.seqs, testDescFile.keys, testDescFile.params, startSequence);
+    tester.sockList = NULL;
+
     sequencer(&tester, startSequence);
 
     socketClientListAll_free(tester.sockList);
+
+    log_path_free();
 
     keys_free(testDescFile.keys);
     param_free(testDescFile.params);

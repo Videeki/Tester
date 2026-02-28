@@ -8,9 +8,7 @@
 #include <time.h>
 
 
-static char* logPath = NULL;
-
-void log_path_init(char* path);
+void log_path_init(const char* path);
 char* log_path_get();
 void log_path_free();
 

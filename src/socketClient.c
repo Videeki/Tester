@@ -2,6 +2,7 @@
 
 SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
 {
+    DEBUG("SocketClient_Init START with IP: %s, HOST: %d\n", ip_address, port);
     int ret = 0;
     int bufferSize = 1024;
     char buffer[bufferSize];
@@ -96,12 +97,14 @@ SOCKETCLIENT* socketClient_Init(const char* ip_address, const int port)
 
 #endif
 
+    DEBUG("SocketClient_Init END with IP: %s, HOST: %d\n", ip_address, port);
     return sock;
 }
 
 
 int socketClient_Send(SOCKETCLIENT* sock, char* message)
 {
+    DEBUG("SocketClient_Send START\n");
     int ret = 0;
 
 #ifdef _WIN32
@@ -126,13 +129,14 @@ int socketClient_Send(SOCKETCLIENT* sock, char* message)
       
 
 #endif
-
+    DEBUG("SocketClient_Send END\n");
     return ret;
 }
 
 
 int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize)
 {
+    DEBUG("SocketClient_Recieve START\n");
     int ret = 0;
 
 #ifdef _WIN32
@@ -165,13 +169,14 @@ int socketClient_Recieve(SOCKETCLIENT* sock, char* buffer, int bufferSize)
     }
 
 #endif
-
+    DEBUG("SocketClient_Recieve END\n");
     return 0;
 }
 
 
 int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, int bufferSize)
 {
+    DEBUG("SocketClient_Send_Recieve START\n");
     int ret = 0;
 
     ret = socketClient_Send(sock, message);
@@ -179,12 +184,14 @@ int socketClient_Send_Recieve(SOCKETCLIENT* sock, char* message, char* buffer, i
 
     ret = socketClient_Recieve(sock, buffer, bufferSize);
 
+    DEBUG("SocketClient_Send_Recieve END\n");
     return ret;
 }
 
 
 int socketClient_Deinit(SOCKETCLIENT* sock)
 {
+    DEBUG("SocketClient_Deinit START\n");
 #ifdef _WIN32
     // Clean up
     closesocket(sock->ConnectSocket);
@@ -197,7 +204,7 @@ int socketClient_Deinit(SOCKETCLIENT* sock)
     free(sock);
 
 #endif
-
+    DEBUG("SocketClient_Deinit END\n");
     return 0;
 }
 
@@ -205,6 +212,7 @@ int socketClient_Deinit(SOCKETCLIENT* sock)
 
 SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const char* name, const char* ip_address, const int port)
 {
+    DEBUG("SocketClientList_append START with Name: %s, IP: %s, HOST: %d\n", name, ip_address, port);
     SOCKETCLIENTLIST* new;
     new = (SOCKETCLIENTLIST*)malloc(sizeof(SOCKETCLIENTLIST));
     
@@ -236,13 +244,14 @@ SOCKETCLIENTLIST* socketClientList_append(SOCKETCLIENTLIST* list, const char* na
 
         iter->next = new;
     }
-
+    DEBUG("SocketClientList_append END\n");
     return list;
 }
 
 
 SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name)
 {
+    DEBUG("SocketClientList_get START with Name: %s\n", name);
     SOCKETCLIENTLIST* iter = list;
     while(iter != NULL)
     {
@@ -253,12 +262,14 @@ SOCKETCLIENT* socketClinetList_get(SOCKETCLIENTLIST* list, const char* name)
         iter = iter->next;
     }
     
+    DEBUG("SocketClientList_get END\n");
     return NULL;
 }
 
 
 void socketClientList_free(SOCKETCLIENTLIST* list, const char* name)
 {
+    DEBUG("SocketClientList_free START with Name: %s\n", name);
     if(list == NULL) return;
     
     SOCKETCLIENTLIST* lag = NULL;
@@ -286,11 +297,13 @@ void socketClientList_free(SOCKETCLIENTLIST* list, const char* name)
         free(iter->name);
         free(iter);
     }
+    DEBUG("SocketClientList_free END\n");
 }
 
 
 void socketClientListAll_free(SOCKETCLIENTLIST* list)
 {
+    DEBUG("SocketClientListAll_free START\n");
     if(list == NULL) return;
     
 
@@ -303,6 +316,7 @@ void socketClientListAll_free(SOCKETCLIENTLIST* list)
         free(iter);
         iter = next;
     }
+    DEBUG("SocketClientListAll_free END\n");
 }
 
 

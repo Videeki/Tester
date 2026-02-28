@@ -1,6 +1,13 @@
 #include "memManager.h"
 
 
+static void logPathFree(void** path)
+{
+    if(path != NULL)
+        log_path_free();
+}
+
+
 static void seqListFree(void** seqList)
 {
     sequence_free((Sequences*)*seqList);
