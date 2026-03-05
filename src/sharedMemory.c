@@ -1,17 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <sys/types.h>
+#include <unistd.h>
+
 #include "sharedMemory.h"
 
 #define IPC_RESULT_ERROR (-1)
 
 static int get_shared_block(char* filename, int size)
 {
+    FILE *file;
+    if((file = fopen(filename, "r")))
+    {
+        fclose(file);
+    }
+    else if((file = fopen(filename, "w")))
+    {
+        char buff[BUFFERSIZE];
+        memset(buff, ' ', BUFFERSIZE);
+        fprintf(file, buff);
+        fclose(file);
+    }
+    else
+    {
+        perror("SharedMemory creation error");
+    }
+
     key_t key = ftok(filename, 0);
     if(IPC_RESULT_ERROR == key)
     {
@@ -20,8 +37,6 @@ static int get_shared_block(char* filename, int size)
     }
 
     int ret = shmget(key, size, 0644 | IPC_CREAT);
-
-    printf("DEBUG: return value of shmget is %d\n", ret);
 
     return ret;
 }

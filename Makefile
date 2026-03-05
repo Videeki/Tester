@@ -44,5 +44,9 @@ socketClientTest:
 	($(PWD)/bin/socketClientTest TestSocket_00 127.0.0.1 42069 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
 	($(PWD)/bin/socketClientTest TestSocket_01 127.0.0.1 42069 && echo $(GREEN)"PASS"$(RESET)) || echo $(RED)"FAIL"$(RESET)
 
+
+sharedMemoryTest:
+	gcc -Wall $(PWD)/test/sharedMemoryTest.c -o $(PWD)/bin/sharedMemoryTest $(PWD)/src/sharedMemory.c -I $(PWD)/includes
+
 clearTests:
 	rm $(PWD)/bin/*Test

@@ -1,11 +1,16 @@
 #ifndef SHARED_MEMORY_H
 #define SHARED_MEMORY_H
 
+#include <sys/types.h>
 #include <stdbool.h>
 
 
+#ifndef FILENAME
+#define FILENAME ".sharedMemoryFile"
+#endif /* FILENAME */
+
 #define MSGSIZE 4096
-#define FILENAME "writeshmem.c"
+
 
 typedef struct buffer
 {
