@@ -5,16 +5,45 @@ BLUE := "\e[38;2;0;0;255m"
 RESET := "\e[0m"
 
 
-all:
+Tester:
+	gcc -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON
+	gcc -Wall -c $(PWD)/src/parser.c -o $(PWD)/bin/parser.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/stringUtils.c -o $(PWD)/bin/stringUtils.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/hashCalc.c -o $(PWD)/bin/hashCalc.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/socketClient.c -o $(PWD)/bin/socketClient.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/sharedMemory.c -o $(PWD)/bin/sharedMemory.o -I $(PWD)/includes
+	gcc -Wall ./main.c -o $(PWD)/bin/Tester $(PWD)/bin/logger.o $(PWD)/bin/parser.o $(PWD)/bin/stringUtils.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/sharedMemory.o
+	rm $(PWD)/bin/stringUtils.o $(PWD)/bin/parser.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/logger.o $(PWD)/bin/sharedMemory.o
+
+Tester_debug:
 	gcc -g -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON
 	gcc -g -Wall -c $(PWD)/src/parser.c -o $(PWD)/bin/parser.o -I $(PWD)/includes
 	gcc -g -Wall -c $(PWD)/src/stringUtils.c -o $(PWD)/bin/stringUtils.o -I $(PWD)/includes
 	gcc -g -Wall -c $(PWD)/src/hashCalc.c -o $(PWD)/bin/hashCalc.o -I $(PWD)/includes
 	gcc -g -Wall -c $(PWD)/src/socketClient.c -o $(PWD)/bin/socketClient.o -I $(PWD)/includes
-	gcc -g -Wall -c $(PWD)/src/sharedMemory.c -o $(PWD)/bin/sharedMemory.o - I $(PWD)/includes
-	gcc -g -Wall -c $(PWD)/src/sequencer.c -o $(PWD)/bin/sequencer.o -I $(PWD)/includes
-	gcc -g -Wall ./main.c -o $(PWD)/bin/Tester $(PWD)/bin/logger.o $(PWD)/bin/parser.o $(PWD)/bin/stringUtils.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/sharedMemory.o $(PWD)/bin/sequencer.o
-	rm $(PWD)/bin/stringUtils.o $(PWD)/bin/sequencer.o $(PWD)/bin/parser.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/logger.o $(PWD)/bin/sharedMemory.o
+	gcc -g -Wall -c $(PWD)/src/sharedMemory.c -o $(PWD)/bin/sharedMemory.o -I $(PWD)/includes
+	gcc -g -Wall ./main.c -o $(PWD)/bin/Tester $(PWD)/bin/logger.o $(PWD)/bin/parser.o $(PWD)/bin/stringUtils.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/sharedMemory.o
+	rm $(PWD)/bin/stringUtils.o $(PWD)/bin/parser.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/logger.o $(PWD)/bin/sharedMemory.o
+
+Sequencer:
+	gcc -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON
+	gcc -Wall -c $(PWD)/src/parser.c -o $(PWD)/bin/parser.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/stringUtils.c -o $(PWD)/bin/stringUtils.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/hashCalc.c -o $(PWD)/bin/hashCalc.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/socketClient.c -o $(PWD)/bin/socketClient.o -I $(PWD)/includes
+	gcc -Wall -c $(PWD)/src/sharedMemory.c -o $(PWD)/bin/sharedMemory.o -I $(PWD)/includes
+	gcc -Wall $(PWD)/src/sequencer.c -o $(PWD)/bin/Sequencer $(PWD)/bin/logger.o $(PWD)/bin/parser.o $(PWD)/bin/stringUtils.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/sharedMemory.o -I $(PWD)/includes
+	rm $(PWD)/bin/stringUtils.o $(PWD)/bin/parser.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/logger.o $(PWD)/bin/sharedMemory.o
+
+Sequencer_debug:
+	gcc -g -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON
+	gcc -g -Wall -c $(PWD)/src/parser.c -o $(PWD)/bin/parser.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/stringUtils.c -o $(PWD)/bin/stringUtils.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/hashCalc.c -o $(PWD)/bin/hashCalc.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/socketClient.c -o $(PWD)/bin/socketClient.o -I $(PWD)/includes
+	gcc -g -Wall -c $(PWD)/src/sharedMemory.c -o $(PWD)/bin/sharedMemory.o -I $(PWD)/includes
+	gcc -g -Wall $(PWD)/src/sequencer.c -o $(PWD)/bin/Sequencer $(PWD)/bin/logger.o $(PWD)/bin/parser.o $(PWD)/bin/stringUtils.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/sharedMemory.o -I $(PWD)/includes
+	rm $(PWD)/bin/stringUtils.o $(PWD)/bin/parser.o $(PWD)/bin/hashCalc.o $(PWD)/bin/socketClient.o $(PWD)/bin/logger.o $(PWD)/bin/sharedMemory.o
 
 allinfo:
 	gcc -g -Wall -c $(PWD)/src/logger.c -o $(PWD)/bin/logger.o -I $(PWD)/includes -D DEBUGLOGON -fmem-report
