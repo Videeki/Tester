@@ -1,9 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <signal.h>
+#include "logger.h"
+#include "parser.h"
+#include "hashCalc.h"
+#include "stringUtils.h"
+#include "socketClient.h"
+#include "serialClient.h"
+#include "sharedMemory.h"
+
 #include "sequencer.h"
 
-//int CMDProc(Parameters* list, char* cmd);
-int CMDProc(TESTER* data, char* cmd)
+static SOCKETCLIENTLIST* sockList = NULL;
+
+
+BUFFER_t* buffer = NULL;
+
+static void testerMemFree(int sigNum)
 {
-    static SOCKETCLIENTLIST* sockList = NULL;
+    if(sockList != NULL)
+    {
+        socketClientListAll_free(sockList);
+        sockList = NULL;
+    }
+
+    buffer->pid = 0;
+    detach_memory_block(buffer);
+}
+
+
+//int CMDProc(Parameters* list, char* cmd);
+int CMDProc(TESTER* self, char* cmd)
+{
     stringList* cmdList = NULL;
     cmdList = stringList_from_string(cmdList, cmd, "<-");
 
@@ -19,13 +49,13 @@ int CMDProc(TESTER* data, char* cmd)
     {
         case InitPS:
         {
-            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(data->desc->params, "PSIP"), get_parameter(data->desc->params, "PSHost"));
+            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(self->params, "PSIP"), get_parameter(self->params, "PSHost"));
             break;
         }
 
         case InitGateway:
         {
-            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(data->desc->params, "GatewayIP"), get_parameter(data->desc->params, "GatewayHost")); 
+            LOG("\e[38;2;0;255;0m%s -> IP:%s, Host:%s\e[0m\n", cmd, get_parameter(self->params, "GatewayIP"), get_parameter(self->params, "GatewayHost")); 
             break;
         }
 
@@ -40,8 +70,8 @@ int CMDProc(TESTER* data, char* cmd)
                  cmdList->next->next->str,
                  cmdList->next->next->next->str);
         
-            data->sockList = socketClientList_append(data->sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
-            if(data->sockList == NULL)
+            sockList = socketClientList_append(sockList, cmdList->next->str, cmdList->next->next->str, atoi(cmdList->next->next->next->str));
+            if(sockList == NULL)
                 ERROR("Unsuccesfull sockList append");
         
             break;
@@ -71,7 +101,7 @@ int CMDProc(TESTER* data, char* cmd)
         case SocketCLEAN:
         {
             LOG("Socklist close\n");
-            if(data->sockList != NULL)
+            if(sockList != NULL)
                 //socketClientListAll_free(sockList);
                 socketClientList_free(sockList, cmdList->next->str);
             break;
@@ -104,32 +134,64 @@ int CMDProc(TESTER* data, char* cmd)
 }
 
 
-//void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq)
-void sequencer(TESTER* data, const char* actSeq)
+void sequencer(TESTER* self, const char* actSeq)
 {
-    if(data->desc->keys == NULL) return;
+    if(self->keys == NULL) return;
     
-    if(sequence_index(data->desc->seqs, actSeq) >= 0)
+    if(sequence_index(self->seqs, actSeq) >= 0)
     {
-        Keys* keyiter = data->desc->keys;
+        Keys* keyiter = self->keys;
         while(keyiter->next != NULL)
         {
             if(!strcmp(keyiter->sequence, actSeq))
             {
-                if(sequence_index(data->desc->seqs, keyiter->key) >= 0)
-                    sequencer(data, keyiter->key);
+                if(sequence_index(self->seqs, keyiter->key) >= 0)
+                    sequencer(self, keyiter->key);
                 else
-                    CMDProc(data, keyiter->key);
+                    CMDProc(self, keyiter->key);
             }
             keyiter = keyiter->next;
         }
 
         if(!strcmp(keyiter->sequence, actSeq))
         {
-            if(sequence_index(data->desc->seqs, keyiter->key) >= 0)
-                sequencer(data, keyiter->key);
+            if(sequence_index(self->seqs, keyiter->key) >= 0)
+                sequencer(self, keyiter->key);
             else
-                CMDProc(data, keyiter->key);
+                CMDProc(self, keyiter->key);
         }
     }
+}
+
+int main(int argc, char* argv[])
+{
+    if(argc > 3)
+    {
+        perror("Not enough parameter added\n");
+        return EXIT_FAILURE;
+    }
+    signal(SIGSEGV, testerMemFree);
+    signal(SIGINT, testerMemFree);
+
+    buffer = attach_memory_block(argv[1], atoi(argv[2]));
+    if(buffer == NULL)
+    {
+        perror("Memory block attach failed\n");
+        return EXIT_FAILURE;
+    }
+
+    if(sequence_index(buffer->data->seqs, argv[3]) < 0)
+    {
+        perror("Invalid sequence provided\n");
+        return EXIT_FAILURE;
+    }
+
+    buffer->pid = getpid();
+    sequencer(buffer->data, argv[3]);
+
+    socketClientListAll_free(sockList);
+    buffer->pid = 0;
+    detach_memory_block(buffer);
+
+    return EXIT_SUCCESS;
 }

@@ -1,9 +1,33 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <signal.h>
+#include "stringUtils.h"
+
 #include "parser.h"
 
 
-int parser(PARSED* parsed, const char* path)
+static FILE* fp = NULL;
+static char* fileContent = NULL;
+
+void parser_signal_handler(int signal)
 {
-    FILE* fp = fopen(path, "r");
+    if(signal == SIGSEGV)
+    {
+        fprintf(stderr, "Segmentation fault occurred during parsing. Please check the input file format.\n");
+        
+        if(fp != NULL) fclose(fp);
+        if(fileContent != NULL) free(fileContent);
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+int parser(TESTER* self, const char* path)
+{
+    signal(SIGSEGV, parser_signal_handler);
+    fp = fopen(path, "r");
 
     if (fp == NULL)
     {
@@ -18,7 +42,7 @@ int parser(PARSED* parsed, const char* path)
     fseek(fp, 0L, 0);
 
     res += 1;
-    char* fileContent = (char*)malloc(res * sizeof(char));
+    fileContent = (char*)malloc(res * sizeof(char));
 
     if(fileContent == NULL)
     {
@@ -26,24 +50,32 @@ int parser(PARSED* parsed, const char* path)
         return EXIT_FAILURE;
     }
 
+    printf("Parsing file: %s\n", path);
     while(fgets(fileContent, res, fp))
     {
+        printf("Parsing line: %s", fileContent);
         if(fileContent[0] == '#' || fileContent[0] == '\n' || fileContent[0] == '\r') continue;
         else if(fileContent[0] == '[')
         {
-            parsed->seqs = sequence_append(parsed->seqs, fileContent, 1);
+            printf("Found sequence: %s", fileContent);
+            self->seqs = sequence_append(self->seqs, fileContent, 1);
         }
         else if(string_char_index(fileContent, '=') >= 0)
         {
-            parsed->params = param_append(parsed->params, fileContent);
+            self->params = param_append(self->params, fileContent);
         }
         else
         {
-            Sequences* iter = parsed->seqs;
+            if(self->seqs == NULL)
+            {
+                fprintf(stderr, "Key-value pair found before any sequence definition. Please check the input file format.\n");
+                return EXIT_FAILURE;
+            }
+            Sequences* iter = self->seqs;
             while(iter->next != NULL)
                 iter = iter->next;
 
-            parsed->keys = keys_append(parsed->keys, iter->sequence, fileContent, 1);
+            self->keys = keys_append(self->keys, iter->sequence, fileContent, 1);
         }
     }
 
@@ -59,18 +91,34 @@ int parser(PARSED* parsed, const char* path)
 
 Sequences* sequence_append(Sequences* list, const char* sequence, uint8_t copy)
 {
-    Sequences* new;
-    new = (Sequences*)malloc(sizeof(Sequences));
+    Sequences* new = (Sequences*)malloc(sizeof(Sequences));
+    if(new == NULL)
+    {
+        perror("Unsuccessfull memory allocation");
+        return list;
+    }
+
     new->next = NULL;
     new->copy = copy;
     int seqNameLen = 1;
+    printf("Extracting sequence name from: %s", sequence);
     while(sequence[seqNameLen] != ']')
         seqNameLen++;
+    printf("Extracted sequence name: %.*s\n", seqNameLen - 1, sequence + 1);
 
     if(copy) new->sequence = (char*)malloc(seqNameLen * sizeof(char));
+    if(new->sequence == NULL)
+    {
+        perror("Unsuccessfull memory allocation");
+        free(new);
+        return list;
+    }
 
-    strncpy(new->sequence, sequence + 1, seqNameLen - 1);
+    printf("Appending sequence: %.*s\n", seqNameLen - 1, sequence + 1);
+    memcpy(new->sequence, sequence + 1, seqNameLen - 1);
     new->sequence[seqNameLen - 1] = '\0';
+    printf("Sequence appended: %s\n", new->sequence);
+
 
     if(list == NULL)
     {

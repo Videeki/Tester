@@ -1,17 +1,7 @@
 #ifndef SEQUENCER_H
 #define SEQUENCER_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include "logger.h"
-#include "parser.h"
-#include "hashCalc.h"
-#include "stringUtils.h"
-#include "socketClient.h"
-#include "serialClient.h"
-
+#include "interface.h"
 
 #define InitPS      792116435
 #define InitGateway 993770905
@@ -22,15 +12,11 @@
 #define LogFREE     2255366703
 
 
-typedef struct tester
-{
-    PARSED* desc;
-    SOCKETCLIENTLIST* sockList;
-}TESTER;
-
 //int CMDProc(Parameters* list, char* cmd);
 int CMDProc(TESTER* data, char* cmd);
 //void sequencer(Sequences* seqs, Keys* keys, Parameters* params, char* actSeq);
-void sequencer(TESTER* data, const char* actSeq);
+void sequencer(TESTER* self, const char* actSeq);
+
+void saveSequence(TESTER* data, const char* path);
 
 #endif  /* SEQUENCER_H */

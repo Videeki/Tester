@@ -19,8 +19,8 @@ static int get_shared_block(char* filename, int size)
     }
     else if((file = fopen(filename, "w")))
     {
-        char buff[BUFFERSIZE];
-        memset(buff, ' ', BUFFERSIZE);
+        char buff[size];
+        memset(buff, ' ', size);
         fprintf(file, buff);
         fclose(file);
     }
@@ -52,10 +52,21 @@ BUFFER_t* attach_memory_block(char* filename, int size)
     }
 
     BUFFER_t* result = shmat(shared_block_id, NULL, 0);
-    if(IPC_RESULT_ERROR == result->status)
+    printf("Attached memory block status: %d\n", result->status);
+    switch(result->status)
     {
-        perror("ERROR: shmat");
-        return NULL;
+        case 0:
+        {
+            result->status = 1;
+            break;
+        }
+        case IPC_RESULT_ERROR:
+        {
+            perror("ERROR: shmat");
+            return NULL;
+        }
+        default:
+            break;
     }
 
     return result;

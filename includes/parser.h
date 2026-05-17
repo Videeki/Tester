@@ -1,48 +1,10 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-
-#include "stringUtils.h"
-
-typedef struct sequences Sequences;
-typedef struct keys Keys;
-typedef struct params Parameters;
-
-struct sequences
-{
-    char* sequence;
-    uint8_t copy;
-    Sequences* next;
-};
-
-struct keys
-{
-    char* sequence;
-    char* key;
-    uint8_t copy;
-    Keys* next;
-};
-
-struct params
-{
-    char* name;
-    char* value;
-    Parameters* next;
-};
-
-typedef struct parsed
-{
-    Sequences* seqs;
-    Keys* keys;
-    Parameters* params;
-}PARSED;
+#include "interface.h"
 
 
-int parser(PARSED* parsed, const char* path);
+int parser(TESTER* self, const char* path);
 
 Sequences* sequence_append(Sequences* list, const char* sequence, uint8_t copy);
 int sequence_index(Sequences* list, const char* sequence);
