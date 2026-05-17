@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 
@@ -12,7 +13,7 @@ enum parity {NONE, ODD, EVEN, MARK, SPACE};
 typedef struct serialparams
 {
     int BaudRate;           // Setting BaudRate
-    int ByteSize;           // Setting ByteSize
+    uint8_t DataBits;       // Setting DataBits
     enum stopBits StopBits; // Setting StopBits
     enum parity Parity;     // Setting Parity
 }SerialParams;
@@ -36,8 +37,8 @@ typedef struct serialparams
 
 int serial_Open(SERIALPORT* port, char* portName);
 int serial_Settings(SERIALPORT* port, SERIALPARAMS serialParams, SERIALTIMEOUT timeouts);
-int serial_Write(SERIALPORT* port, char* msg);
-int serial_Read(SERIALPORT* port, char* msg);
+int serial_Write(SERIALPORT* port, char* msg, int msgSize);
+int serial_Read(SERIALPORT* port, char* msg, int msgSize);
 int serial_Close(SERIALPORT* port);
 
 
