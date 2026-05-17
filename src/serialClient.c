@@ -86,13 +86,13 @@ int serial_Open(SERIALPORT* port, char* portName)
 #elif __linux__
     char ComPortName[15] = "/dev/";
     strcat(ComPortName, portName);
-    int serial_port = open(ComPortName, O_RDWR);
+    *port = open(ComPortName, O_RDWR);
 
     // Create new termios struct, we call it 'tty' for convention
     struct termios tty;
 
     // Read in existing settings, and handle any error
-    if(tcgetattr(serial_port, &tty) != 0)
+    if(tcgetattr(*port, &tty) != 0)
     {
         printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
         return EXIT_FAILURE;
@@ -105,7 +105,7 @@ int serial_Open(SERIALPORT* port, char* portName)
     tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control (most common)
     tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines (CLOCAL = 1)
 
-    tty.c_lflag &= ~ICANON;
+    tty.c_lflag |= ICANON;
     tty.c_lflag &= ~ECHO; // Disable echo
     tty.c_lflag &= ~ECHOE; // Disable erasure
     tty.c_lflag &= ~ECHONL; // Disable new-line echo
@@ -121,12 +121,12 @@ int serial_Open(SERIALPORT* port, char* portName)
     tty.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
     tty.c_cc[VMIN] = 0;
 
-    // Set in/out baud rate to be 9600
-    cfsetispeed(&tty, B9600);
-    cfsetospeed(&tty, B9600);
+    // Set in/out baud rate to be 115200
+    cfsetispeed(&tty, B115200);
+    cfsetospeed(&tty, B115200);
 
     // Save tty settings, also checking for error
-    if (tcsetattr(serial_port, TCSANOW, &tty) != 0)
+    if (tcsetattr(*port, TCSANOW, &tty) != 0)
     {
         printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
         return EXIT_FAILURE;
@@ -156,7 +156,7 @@ int serial_Settings(SERIALPORT* port, SERIALPARAMS serialParams, SERIALTIMEOUT t
         return -2;
     }
 
-    dcbSerialParams.BaudRate = CBR_115200;      // Setting BaudRate = 115200
+    dcbSerialParams.BaudRate = CBR_115200;    // Setting BaudRate = 115200
     dcbSerialParams.ByteSize = 8;             // Setting ByteSize = 8
     dcbSerialParams.StopBits = ONESTOPBIT;    // Setting StopBits = 1
     dcbSerialParams.Parity = NOPARITY;        // Setting Parity = None 
@@ -190,7 +190,7 @@ int serial_Settings(SERIALPORT* port, SERIALPARAMS serialParams, SERIALTIMEOUT t
     struct termios tty;
 
     // Read in existing settings, and handle any error
-    if(tcgetattr(port, &tty) != 0)
+    if(tcgetattr(*port, &tty) != 0)
     {
         printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
         return EXIT_FAILURE;
@@ -199,15 +199,63 @@ int serial_Settings(SERIALPORT* port, SERIALPARAMS serialParams, SERIALTIMEOUT t
     tty.c_ospeed = serialParams.BaudRate;
 
     //serialParams.ByteSize;
+    tty.c_cflag &= ~CSIZE;
+    switch (serialParams.DataBits)
+    {
+        case 5:
+            tty.c_cflag |= CS5;
+            break;
+        case 6:
+            tty.c_cflag |= CS6;
+            break;
+        case 7:
+            tty.c_cflag |= CS7;
+            break;
+        case 8:
+            tty.c_cflag |= CS8;
+            break;
+        default:
+            fprintf(stderr, "Invalid data bits setting\n");
+            return EXIT_FAILURE;
+    }
     //serialParams.Parity;
+    switch (serialParams.Parity)
+    {
+        case NONE:
+            tty.c_cflag &= ~PARENB;
+            break;
+        case ODD:
+            tty.c_cflag |= PARENB;
+            tty.c_cflag |= PARODD;
+            break;
+        case EVEN:
+            tty.c_cflag |= PARENB;
+            tty.c_cflag &= ~PARODD;
+            break;
+        case MARK:
+            /* code */
+            break;
+        case SPACE:
+            /* code */
+            break; 
+        default:
+            fprintf(stderr, "Invalid parity setting\n");
+            return EXIT_FAILURE;
+    }
+
     switch (serialParams.StopBits)
     {
-    case ONE:
-        /* code */
-        break;
-    
-    default:
-        break;
+        case ONE:
+            tty.c_cflag &= ~CSTOPB;
+            break;
+        case ONE_AND_A_HALF:
+            /* code */
+            break;
+        case TWO:
+            tty.c_cflag |= CSTOPB;
+            break; 
+        default:
+            break;
     }
 
 
@@ -217,7 +265,7 @@ int serial_Settings(SERIALPORT* port, SERIALPARAMS serialParams, SERIALTIMEOUT t
 }
 
 
-int serail_write(SERIALPORT* port, char* msg)
+int serail_write(SERIALPORT* port, char* msg, int msgSize)
 {
     int ret = 0;
 
@@ -239,7 +287,7 @@ int serail_write(SERIALPORT* port, char* msg)
 }
 
 
-int serial_Read(SERIALPORT* port, char* msg)
+int serial_Read(SERIALPORT* port, char* msg, int msgSize)
 {
     int ret = 0;
 
@@ -271,7 +319,16 @@ int serial_Read(SERIALPORT* port, char* msg)
     }
 
 #elif __linux__
+    
+    memset(msg, '\0', msgSize);
 
+    int num_bytes = read(*port, msg, msgSize);
+
+    // n is the number of bytes read. n may be 0 if no bytes were received, and can also be -1 to signal an error.
+    if (num_bytes < 0) {
+        printf("Error reading: %s", strerror(errno));
+        return 1;
+    }
 
 #endif
 
@@ -287,7 +344,7 @@ int serial_Close(SERIALPORT* port)
 	CloseHandle(port);                 //Closing the Serial Port
 
 #elif __linux__
-
+    close(*port);
 
 #endif
 
@@ -297,23 +354,50 @@ int serial_Close(SERIALPORT* port)
 
 #ifdef RUNABLE
 //  Windows/Linux: gcc -Wall -D RUNABLE SerialClient.c -o .\bin\SerialClient
-int main(int argc, char* argv[])
-{
-    SERIALPORT Serial;
-    serial_Open(&Serial, argv[1]);
-    serial_Write(&Serial, "Hello world!");
-    
-    char msg[255];
-    serial_Read(&Serial, msg);
-    serial_Close(&Serial);
+#include <signal.h>
+SERIALPORT Serial;
 
-    return 0;
+void memFree(int signum)
+{
+    printf("Signal %d received, exiting...\n", signum);
+    serial_Close(&Serial);
+    exit(EXIT_SUCCESS);
 }
 
+int main(int argc, char* argv[])
+{
+    if(argc != 2)
+    {
+        printf("Usage: %s <Serial Port Name>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
 
-#endif
+    signal(SIGSEGV, memFree);
+    signal(SIGINT, memFree);
+    
+    printf("Opening serial port %s...\n", argv[1]);
+    serial_Open(&Serial, argv[1]);
+    //serial_Write(&Serial, "Hello world!");
+    
+    char msg[255];
+
+    printf("Reading from serial port...\n");
+    do
+    {
+        serial_Read(&Serial, msg, sizeof(msg));
+        printf("Received message: %s", msg);
+    }while(strcmp(msg, "__STOP__") != 0);
+
+    printf("Closing serial port...\n");
+    serial_Close(&Serial);
+
+    return EXIT_SUCCESS;
+}
+
+#endif /* RUNABLE */
 
 
+#ifdef TESTMODE
 // C library headers
 #include <stdio.h>
 #include <string.h>
@@ -326,7 +410,7 @@ int main(int argc, char* argv[])
 
 int main() {
   // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
-  int serial_port = open("/dev/ttyUSB0", O_RDWR);
+  int serial_port = open("/dev/ttyACM0", O_RDWR);
 
   // Create new termios struct, we call it 'tty' for convention
   struct termios tty;
@@ -344,7 +428,7 @@ int main() {
   tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control (most common)
   tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines (CLOCAL = 1)
 
-  tty.c_lflag &= ~ICANON;
+  tty.c_lflag |= ICANON;
   tty.c_lflag &= ~ECHO; // Disable echo
   tty.c_lflag &= ~ECHOE; // Disable erasure
   tty.c_lflag &= ~ECHONL; // Disable new-line echo
@@ -361,8 +445,8 @@ int main() {
   tty.c_cc[VMIN] = 0;
 
   // Set in/out baud rate to be 9600
-  cfsetispeed(&tty, B9600);
-  cfsetospeed(&tty, B9600);
+  cfsetispeed(&tty, B115200);
+  cfsetospeed(&tty, B115200);
 
   // Save tty settings, also checking for error
   if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
@@ -371,8 +455,8 @@ int main() {
   }
 
   // Write to serial port
-  unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r' };
-  write(serial_port, msg, sizeof(msg));
+  //unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r' };
+  //write(serial_port, msg, sizeof(msg));
 
   // Allocate memory for read buffer, set size according to your needs
   char read_buf [256];
@@ -395,8 +479,10 @@ int main() {
 
   // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
   // print it to the screen like this!)
-  printf("Read %i bytes. Received message: %s", num_bytes, read_buf);
+  printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
 
   close(serial_port);
   return 0; // success
-};
+}
+
+#endif /* TESTMODE */
