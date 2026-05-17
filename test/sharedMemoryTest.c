@@ -10,10 +10,12 @@
 #define STOPMSG "__STOP__"
 #define STOPMSGSIZE 9
 
+
 void alert(int sigID)
 {
     perror("Segmentation fault signaled\n");
     destroy_memory_block(FILENAME);
+    abort();
 }
 
 int main(int argc, char* argv[])
@@ -24,7 +26,8 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    BUFFER_t* block = attach_memory_block(FILENAME, BUFFERSIZE);
+    signal(SIGSEGV, alert);
+    BUFFER_t* block = attach_memory_block(FILENAME, (sizeof(int) + sizeof(pid_t) + MSGSIZE));
     if(block == NULL)
     {
         perror("ERROR: could not get block\n");
@@ -43,18 +46,19 @@ int main(int argc, char* argv[])
         perror("ERROR: fork\n");
         return EXIT_FAILURE;
     }
-    else if(0 == forkID)    //Child process
+    else if(0 == forkID)    /* Child process */
     {
-        signal(SIGSEGV, alert);
         block->pid = getpid();
+        printf("Child started\n");
+        char* msg;
         do
         {
-            printf("Reading: \"%s\"\n", block->msg);
+            msg = (char*)block->data;
+            printf("%s\n", msg);
             raise(SIGSTOP);
-        } while(strcmp("__STOP__", block->msg));
+        } while(strcmp("__STOP__", msg));
 
         block->pid = 0;
-        printf("So long, and thanks for all the fish\n");
         detach_memory_block(block);
 
         if(destroy_memory_block(FILENAME))
@@ -66,32 +70,36 @@ int main(int argc, char* argv[])
             printf("Could not destroy block: %s\n", FILENAME);
         }
 
-        printf("Stop fork");
         return EXIT_SUCCESS;
     }
     else    //Main process
     {
         int option;
-        while((option = getopt(argc, argv, "prsm:v::")) != -1)   //get option from the getopt() method
+        while((option = getopt(argc, argv, "iprsm:v::")) != -1)   //get option from the getopt() method
         {
             switch(option)
             {
-                case 'r':
+                case 'i':
                 {
                     block->pid = 0;
                     block->status = 0;
-                    memset(block->msg, 0, 4096); 
+                    block->data = NULL;
+                    break;
+                }
+                case 'r':
+                {
+                    
                     break;
                 }
                 case 's':
                 {
-                    strncpy(block->msg, STOPMSG, STOPMSGSIZE);
+                    block->data = (void*)STOPMSG;
                     kill(block->pid, SIGCONT);
                     break;
                 }
                 case 'm':
                 {
-                    strncpy(block->msg, optarg, MSGSIZE);
+                    block->data = (void*)optarg;
                     kill(block->pid, SIGCONT);
                     break;
                 }
